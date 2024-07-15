@@ -1,0 +1,8 @@
+.cardcolor{
+    /* background: linear-gradient(blue,rgb(40, 63, 71)); */
+    box-shadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)';
+    padding: '16px'; 
+    margin: '16px';
+  border-radius: '8px';
+   
+}

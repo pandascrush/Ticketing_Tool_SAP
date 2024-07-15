@@ -1,0 +1,88 @@
+.cardforstatus{
+        background-color:white;
+        color: blue;
+        border: 0px; 
+}
+.backgroundshade{
+        color: black;
+} 
+table{
+        border: none;
+}
+    th,td{
+        border: 0px;
+    }
+    tr{
+        border-bottom: 1px solid white;    
+    }
+    .headingbox{
+        background-color: #4C9CB9;
+    }
+    thead{
+       font-family: 'Times New Roman', Times, serif;   
+    }
+    .crdsummary{ 
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        font-weight: 200;
+        /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19); */
+    }
+    .card-equal-height {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        border: 0px;
+    }
+    /* .crdtable{
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19); 
+    } */
+    .tickettable th,tr{
+    border: none;
+    }
+    .headrow{
+        border-bottom: 2px solid grey;
+    }
+    .ticketstatustable th{
+        padding: 10px 0px ;
+        font-size: 20px;
+    }
+    .tickettable tr{
+        border-radius: 4px !important;
+        overflow: hidden;
+    }
+    .tickettable tr td{
+     padding: 10px 0px ;
+    }
+    .tickettable tr:nth-child(even){
+    background-color: #dee3e0;
+    border-radius: 10px;
+    overflow: hidden;
+    }
+    
+    .tickettable {
+       min-width: 80%;
+        border-collapse: collapse;
+        border-radius: 10px; /* Rounded corners for the table */
+        overflow: hidden; /* Ensure rounded corners display correctly */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add box shadow */
+    }
+    
+    .tickettable thead {
+        background-color: #f2f2f2; /* Header background color */
+    }
+    
+    .tickettable th, .tickettable td {
+        border-bottom: 1px solid #ddd; /* Border bottom for header and cells */
+        padding: 12px; /* Padding for cells */
+        text-align: left;
+    }
+    
+    .tickettable td {
+        padding: 12px; /* Adjust padding as needed */
+    }
+    
+    .headrow {
+        border-bottom: 2px solid grey;
+        background-color: #a7c1f5;
+    }
+    

@@ -1,0 +1,50 @@
+/* src/App.module.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .service-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    width: 300px;
+  }
+  
+  .icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+  }
+  
+  h2 {
+    margin-bottom: 15px;
+  }
+  
+  .subdivisions {
+    text-align: left;
+  }
+  
+  .subdivisions input {
+    margin-right: 10px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  

@@ -1,0 +1,73 @@
+
+   .login-form h2 {
+    margin-bottom: 20px;
+  }
+  
+.form-group {
+    margin-bottom: 15px;
+}
+  
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+  
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}  
+button {
+    padding: 10px 20px;
+    background-color: #841ECC;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;   
+}  
+button:hover {
+    background-color: #841ECC;
+}  
+  
+.login-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+.logintxt{
+  color: white;
+}  
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+} 
+.button-container {
+    display: flex;
+    justify-content: center;
+  }
+
+.formscard{
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;  
+}
+.bgtot{
+  background-color: #2C3D5F;
+}
+.frmbox{
+ background-image: url("../Asset/3257711-01.png");
+ background-repeat: repeat-y;
+ background-size: 100% 100%;
+}
+  
+.regcrd{
+  background: rgba(255, 255, 255, 0.2); /* White background with 20% opacity */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  backdrop-filter: blur(10px); /* Blur the background behind the element */
+  -webkit-backdrop-filter: blur(10px); /* For Safari support */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Semi-transparent white border */
+  padding: 20px; /* Some padding */
+  color: #fff; /* Text color */
+}
+

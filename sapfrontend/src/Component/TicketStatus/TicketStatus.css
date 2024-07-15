@@ -1,0 +1,23 @@
+.cardshd{
+    background: linear-gradient(45deg,#59a0fc,#465AC3,#112fc9);
+}
+.firstbox{
+    box-shadow: 0 0 10px rgba(43, 16, 218, 0.1);
+    border: 0px;  
+}
+.secbox{
+    background-image: url("https://img.freepik.com/premium-vector/smartphone-hands-with-check-mark-screen-online-marketing-banner-template-vector-illustration_275806-1740.jpg?w=740");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.firstbox {
+    position: relative;
+ }
+ 
+  .phone-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    height: 200px;
+  }

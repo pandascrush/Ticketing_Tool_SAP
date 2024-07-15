@@ -1,0 +1,87 @@
+
+.cardforstatus{
+    background-color:white;
+    color: blue;
+    border: 0px; 
+}
+.backgroundshade{
+    /* background-color: #F0F0F0; */
+    color: black;
+}
+
+
+table{
+    border: none;
+}
+th,td{
+    border: 0px;
+}
+tr{
+    border-bottom: 1px solid white;    
+}
+.headingbox{
+    background-color: #4C9CB9;
+}
+thead{
+    /* background: linear-gradient(135deg,#263274,#0f0fe3,#2253f0);  */
+    /* background-color: #4C9CB9; */
+   font-family: 'Times New Roman', Times, serif;
+    
+}
+.crdsummary{
+    
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-weight: 200;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+}
+.card-equal-height {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    border: 0px;
+}
+/* .crdtable{
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19); 
+} */
+.statustable th,tr{
+border: none;
+}
+.headrow{
+    border-bottom: 1px solid grey;
+}
+.statustable th{
+    padding: 10px 0px ;
+    font-size: 20px;
+}
+.statustable tr{
+    border-radius: 4px !important;
+    overflow: hidden;
+}
+.statustable tr td{
+ padding: 10px 0px ;
+}
+.statustable tr:nth-child(even){
+background-color: #dee3e0;
+border-radius: 10px;
+overflow: hidden;
+}
+
+/* @media (max-width:768px){
+    .crdsummary{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px !important;
+    }
+} */
+
+@media (max-width: 576px) {
+    .card-equal-height {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    .statustable {
+        width: 100%; /* Ensure full width on small devices */
+    }
+}
