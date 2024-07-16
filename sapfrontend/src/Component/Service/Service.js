@@ -1,5 +1,3 @@
-// src/App.js
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ServiceCard from "./ServiceCard";
@@ -62,10 +60,12 @@ const Service = () => {
         selectedSubdivisions,
       })
       .then((response) => {
-        if (response.data.message === "Client service added successfully") {
+        console.log(response);
+
+        if (response.data.message === "Client services added successfully") {
           console.log("Submission successful:", response.data);
-          alert("Submission successful");
-          nav(`/admin/service/${id}`);
+          alert("Submission successfull");
+          nav(`/admin/clientdeatil`);
         }
       });
   };

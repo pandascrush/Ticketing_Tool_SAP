@@ -1,0 +1,30 @@
+.cardcolor {
+  /* Adjusted styles based on your requirements */
+  /* background: linear-gradient(to right, blue, rgb(40, 63, 71)); */
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  margin: 16px;
+  border-radius: 8px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.25em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ticketbutton {
+  background-color: #2c3d5f;
+  color: white;
+}
+

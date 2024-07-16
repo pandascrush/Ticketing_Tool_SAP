@@ -17,15 +17,6 @@ const generatePassword = () => {
   return password;
 };
 
-// Configure nodemailer transporter
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: "sivaranji5670@gmail.com", // Replace with your email
-//     pass: "jlja febg xbfg bhyi", // Replace with your email password
-//   },
-// });
-
 export const getAllInternals = (req, res) => {
   const query = `
         SELECT i.emp_id, i.int_id, i.name, i.email, i.mobile, d.designation_name, i.timestamp
@@ -41,9 +32,10 @@ export const getAllInternals = (req, res) => {
 };
 
 export const createInternal = (req, res) => {
-  const { name, email, mobile, designation_id, emp_id } = req.body;
+  const { name, email, mobile, designation_id, emp_id, am_id, head_id } =
+    req.body;
 
-  // Validate the email to end with @kggeniuslabs.com
+  // Validate the email format
   const emailRegex = /^[\w-\.]+@kggeniuslabs\.com$/;
   if (!emailRegex.test(email)) {
     return res
@@ -53,50 +45,65 @@ export const createInternal = (req, res) => {
 
   // Check for duplicate email in the internal table
   const checkEmailQuery = "SELECT * FROM internal WHERE email = ?";
-  db.query(checkEmailQuery, [email], async (err, results) => {
+  db.query(checkEmailQuery, [email], (err, existingUser) => {
     if (err) {
-      return res.status(500).send(err);
+      console.error("Error checking email:", err);
+      return res.status(500).send("Failed to check email.");
     }
-    if (results.length > 0) {
+
+    if (existingUser.length > 0) {
       return res
         .status(400)
         .send("Email already exists. Please use a different email address.");
     }
 
-    try {
-      // Generate a random password for the user
-      const password = generatePassword();
+    // Generate a random password for the user
+    const password = generatePassword();
 
-      // Hash the password with bcrypt
-      const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash the password with bcrypt
+    bcrypt.hash(password, 10, (err, hashedPassword) => {
+      if (err) {
+        console.error("Error hashing password:", err);
+        return res.status(500).send("Failed to hash password.");
+      }
 
-      // If email is unique, proceed to insert the new internal user
-      const insertQuery =
-        "INSERT INTO internal (int_id,name, email, mobile, designation_id, password, emp_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+      // Insert the new internal user into the database
+      const insertQuery = `
+        INSERT INTO internal (int_id, name, email, mobile, designation_id, password, emp_id, am_id, head_id)
+        VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
       db.query(
         insertQuery,
-        [null, name, email, mobile, designation_id, hashedPassword, emp_id],
-        (err, results) => {
+        [
+          name,
+          email,
+          mobile,
+          designation_id,
+          hashedPassword,
+          emp_id,
+          am_id || null,
+          head_id || null,
+        ],
+        (err, insertResult) => {
           if (err) {
-            return res.status(500).send(err);
+            console.error("Error inserting internal user:", err);
+            return res.status(500).send("Failed to create internal user.");
           }
 
-          // Retrieve the inserted employee's emp_id
-          const empId = results.insertId;
+          const empId = insertResult.insertId;
 
-          // Insert into the auth table
-          const authInsertQuery =
-            "INSERT INTO auth (email, password, designation_id, emp_id) VALUES (?, ?, ?, ?)";
+          // Insert into the auth table (assuming this is necessary for authentication)
+          const authInsertQuery = `
+          INSERT INTO auth (email, password, designation_id, emp_id)
+          VALUES (?, ?, ?, ?)
+        `;
           db.query(
             authInsertQuery,
             [email, hashedPassword, designation_id, emp_id],
             (err) => {
               if (err) {
-                return res
-                  .status(500)
-                  .send(
-                    "Internal user created, but failed to store credentials in auth table."
-                  );
+                console.error("Error inserting into auth table:", err);
+                return res.status(500).send("Failed to create internal user.");
               }
 
               // Send the password via email
@@ -114,21 +121,42 @@ export const createInternal = (req, res) => {
                     .status(500)
                     .send("User created, but failed to send email.");
                 }
-                res
-                  .status(201)
-                  .json({
-                    message:
-                      "Internal user created successfully and password sent via email.",
-                    empId,
-                  });
+                res.status(201).json({
+                  message:
+                    "Internal user created successfully and password sent via email.",
+                  empId,
+                });
               });
             }
           );
         }
       );
-    } catch (error) {
-      console.error("Error hashing password:", error);
-      return res.status(500).send("Failed to hash password.");
-    }
+    });
   });
+};
+
+
+export const getInternalByHeadId = async (req, res) => {
+  const {id} = req.params; 
+  console.log(id);
+  
+  try {
+    const sql = `
+      SELECT *
+      FROM internal
+      WHERE head_id = ?
+    `;
+    db.query(sql, [id], (error, results) => {
+      if (error) {
+        console.error("Error fetching internal records:", error);
+        res.status(500).send("Error fetching internal records");
+      } else {
+        console.log("Filtered Internal Records:", results);
+        res.status(200).json(results);
+      }
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Error fetching internal records");
+  }
 };

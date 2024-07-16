@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./Clientregistration.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Spinner from "react-bootstrap/Spinner"; // Make sure to install react-bootstrap
 
 function ClientRegister() {
   const history = useNavigate();
@@ -24,6 +25,8 @@ function ClientRegister() {
   });
 
   const [errors, setErrors] = useState({});
+  const [responseMessage, setResponseMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,7 +34,6 @@ function ClientRegister() {
       ...formData,
       [name]: value,
     });
-    // Clear the error message for the field being edited
     setErrors({
       ...errors,
       [name]: "",
@@ -43,41 +45,57 @@ function ClientRegister() {
 
     const validationErrors = validate(formData);
     if (Object.keys(validationErrors).length > 0) {
-      // If there are validation errors, update the state and display them
       setErrors(validationErrors);
       console.log("Form has validation errors:", validationErrors);
     } else {
-      // If no validation errors, proceed with form submission
+      setIsLoading(true); // Set loading state to true
       axios
         .post("http://localhost:5002/api/client/register", formData)
         .then((res) => {
+          setIsLoading(false); // Set loading state to false
           console.log(res);
           const clientId = res.data.clientId;
-          if (
-            res.data.message ===
-            "Client created successfully and password sent via email."
-          ) {
-            alert("Data stored successfully.");
-            // Redirect to the next page or perform any other action
-            // history(`/admin/service/${btoa(clientId)}`);
-            history(`/admin/service/${btoa(clientId)}`);
+          const responseMessage = res.data.message;
+          console.log(responseMessage)
+          setResponseMessage(responseMessage);
+
+          switch (responseMessage) {
+            case "Client created successfully and password sent via email.":
+              alert("Client created successfully and password sent via email.");
+              history(`/admin/service/${btoa(clientId)}`);
+              break;
+            case "Email already exists in the client table. Please use a different email address.":
+            case "Email already exists in the auth table. Please use a different email address.":
+            case "Server error. Failed to check email.":
+            case "Error hashing password.":
+            case "Server error. Failed to create client.":
+            case "Client created, but failed to store credentials in auth table.":
+            case "Client created, but failed to send email.":
+              alert(responseMessage);
+              break;
+            default:
+              alert("Unknown error. Please try again.");
+              break;
+          }
+        })
+        .catch((error) => {
+          setIsLoading(false); // Set loading state to false
+          console.error("Error submitting form:", error);
+          if (error.response && error.response.data.message) {
+            setResponseMessage(error.response.data.message);
+            alert(error.response.data.message);
           } else {
-            alert("Server error: Unable to register client.");
+            alert("Error submitting form. Please try again.");
           }
         });
-      // .catch(error => {
-      //   console.error('Error submitting form:', error);
-      //   alert("Error submitting form. Please try again.");
-      // });
     }
   };
 
   const validate = (values) => {
     let errors = {};
 
-    // Validate each field
     const alphabetPattern = /^[A-Za-z\s]+$/;
-    
+
     if (!values.company) {
       errors.company = "Company Name is required";
     }
@@ -109,10 +127,9 @@ function ClientRegister() {
     }
     if (!values.zip_code) {
       errors.zip_code = "Zip Code is required";
-    }else if (!/^\d{6}$/.test(values.zip_code)) {
+    } else if (!/^\d{6}$/.test(values.zip_code)) {
       errors.zip_code = "Zip Code must contain exactly 6 digits";
     }
-  
     if (!values.groups) {
       errors.groups = "Group Name is required";
     }
@@ -296,7 +313,7 @@ function ClientRegister() {
                     type="text"
                     id="groups"
                     name="groups"
-                    placeholder="Enter your Group Name"
+                    placeholder="Enter Group Name"
                     className={`form-control ${
                       errors.groups ? "is-invalid" : ""
                     }`}
@@ -306,6 +323,7 @@ function ClientRegister() {
                   <div className="invalid-feedback">{errors.groups}</div>
                 </div>
               </div>
+
               <div className="col">
                 <div className="form-group">
                   <label htmlFor="country">Country</label>
@@ -340,12 +358,12 @@ function ClientRegister() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="gst_no">GST No</label>
+                  <label htmlFor="gst_no">GST Number</label>
                   <input
                     type="text"
                     id="gst_no"
                     name="gst_no"
-                    placeholder="Enter your GST No"
+                    placeholder="Enter your GST Number"
                     className={`form-control ${
                       errors.gst_no ? "is-invalid" : ""
                     }`}
@@ -374,28 +392,32 @@ function ClientRegister() {
                 <div className="form-group">
                   <label htmlFor="address">Address</label>
                   <textarea
+                    id="address"
+                    name="address"
+                    placeholder="Enter your Address"
                     className={`form-control ${
                       errors.address ? "is-invalid" : ""
                     }`}
-                    id="address"
-                    name="address"
-                    rows="3"
                     value={formData.address}
                     onChange={handleChange}
-                  ></textarea>
+                  />
                   <div className="invalid-feedback">{errors.address}</div>
                 </div>
               </div>
             </div>
-            <div className="text-center mb-3">
-              <button
-                type="submit"
-                className="btn btn-primary btn-block text-center"
-              >
-                Next
+            <div className="d-flex justify-content-center">
+              <button type="submit" className="btn btn-primary">
+                Register
               </button>
             </div>
           </form>
+          {isLoading && (
+            <div className="d-flex justify-content-center">
+              <Spinner animation="border" role="status">
+                <span className="sr-only">Loading...</span>
+              </Spinner>
+            </div>
+          )}
         </div>
       </div>
     </div>

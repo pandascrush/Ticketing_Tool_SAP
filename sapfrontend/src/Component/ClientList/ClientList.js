@@ -9,7 +9,6 @@ const ClientList = () => {
   const [selectedSubdivisionId, setSelectedSubdivisionId] = useState("");
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [selectedAmId, setSelectedAmId] = useState("");
-  const [selectedSubdivisions, setSelectedSubdivisions] = useState([]);
 
   useEffect(() => {
     fetchClients();
@@ -18,26 +17,24 @@ const ClientList = () => {
   const fetchClients = () => {
     axios
       .get("http://localhost:5002/api/admin/client-services")
-      .then((response) => setClients(response.data))
-      .catch((error) => console.error("Error fetching clients:", error));
+      .then(response => setClients(response.data))
+      .catch(error => console.error("Error fetching clients:", error));
   };
 
-  const handleAddService = (clientId) => {
+  const handleAddService = clientId => {
     axios
       .get(`http://localhost:5002/api/admin/available-services/${clientId}`)
-      .then((response) => {
+      .then(response => {
         setAvailableSubdivisions(response.data);
         setSelectedClientId(clientId);
-        setSelectedSubdivisionId(""); // Reset the selected subdivision
-        setSelectedServiceId(""); // Reset the selected service
-        setSelectedAmId(""); // Reset the selected am
+        setSelectedSubdivisionId("");
+        setSelectedServiceId("");
+        setSelectedAmId("");
       })
-      .catch((error) =>
-        console.error("Error fetching available services:", error)
-      );
+      .catch(error => console.error("Error fetching available services:", error));
   };
 
-  const handleSubdivisionChange = (event) => {
+  const handleSubdivisionChange = event => {
     const selectedOption = event.target.options[event.target.selectedIndex];
     setSelectedSubdivisionId(selectedOption.value);
     setSelectedServiceId(selectedOption.getAttribute("data-service-id"));
@@ -45,15 +42,8 @@ const ClientList = () => {
   };
 
   const handleSubmit = () => {
-    if (
-      !selectedClientId ||
-      !selectedSubdivisionId ||
-      !selectedServiceId ||
-      !selectedAmId
-    ) {
-      console.error(
-        "Client ID, Subdivision ID, Service ID, or AM ID not selected."
-      );
+    if (!selectedClientId || !selectedSubdivisionId || !selectedServiceId || !selectedAmId) {
+      console.error("Client ID, Subdivision ID, Service ID, or AM ID not selected.");
       return;
     }
 
@@ -67,33 +57,24 @@ const ClientList = () => {
     console.log(data);
 
     axios
-      .post("http://localhost:5002/api/serve/add-client-service", data)
-      .then((response) => {
+      .post("http://localhost:5002/api/serve/add-client-service", { selectedSubdivisions: [data] })
+      .then(response => {
         console.log("Service added successfully:", response.data);
-        // Optionally, update state or show a success message
         fetchClients(); // Refresh client list after adding service
       })
-      .catch((error) => console.error("Error adding service:", error));
+      .catch(error => console.error("Error adding service:", error));
   };
 
   return (
     <div className={styles.clientListContainer}>
       <h2 className={styles.header}>All Clients Details</h2>
-      {clients.map((client) => (
+      {clients.map(client => (
         <div key={client.client_id} className={styles.clientItem}>
           <div className={styles.clientInfo}>
-            <p>
-              <strong>Company:</strong> {client.company}
-            </p>
-            <p>
-              <strong>Email:</strong> {client.email}
-            </p>
-            <p>
-              <strong>Services:</strong> {client.services}
-            </p>
-            <p>
-              <strong>Subdivisions:</strong> {client.subdivisions}
-            </p>
+            <p><strong>Company:</strong> {client.company}</p>
+            <p><strong>Email:</strong> {client.email}</p>
+            <p><strong>Services:</strong> {client.services}</p>
+            <p><strong>Subdivisions:</strong> {client.subdivisions}</p>
           </div>
           <div className={styles.actions}>
             <button
@@ -110,7 +91,7 @@ const ClientList = () => {
                   onChange={handleSubdivisionChange}
                 >
                   <option value="">Select Subdivision</option>
-                  {availableSubdivisions.map((subdivision) => (
+                  {availableSubdivisions.map(subdivision => (
                     <option
                       key={subdivision.subdivision_id}
                       value={subdivision.subdivision_id}
@@ -121,9 +102,7 @@ const ClientList = () => {
                     </option>
                   ))}
                 </select>
-                <button className={styles.submitBtn} onClick={handleSubmit}>
-                  Submit
-                </button>
+                <button className={styles.submitBtn} onClick={handleSubmit}>Submit</button>
               </div>
             )}
           </div>

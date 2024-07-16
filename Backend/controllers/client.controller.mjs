@@ -14,14 +14,13 @@ export const getAllClients = (req, res) => {
   });
 };
 
-
 // Function to generate a random password (You can customize this function)
 const generatePassword = () => {
   return Math.random().toString(36).slice(-8); // Generate an 8-character random password
 };
 
 export const createClient = (req, res) => {
-  console.log("data starteds")
+  console.log("data starteds");
   const {
     company,
     address,
@@ -38,20 +37,27 @@ export const createClient = (req, res) => {
     street,
     email,
     company_short_name,
-    emp_id // Added emp_id for client
+    emp_id, // Added emp_id for client
   } = req.body;
+
+  console.log(req.body);
 
   // Check for duplicate email in the client table
   const checkEmailQuery = "SELECT * FROM client WHERE email = ?";
   db.query(checkEmailQuery, [email], (err, clientResults) => {
     if (err) {
       console.error("Error checking email in client table:", err);
-      return res.status(500).send("Server error. Failed to check email.");
+      return res
+        .status(500)
+        .json({ message: "Server error. Failed to check email." });
     }
     if (clientResults.length > 0) {
       return res
         .status(400)
-        .send("Email already exists in the client table. Please use a different email address.");
+        .json({
+          message:
+            "Email already exists in the client table. Please use a different email address.",
+        });
     }
 
     // Check for duplicate email in the auth table
@@ -59,12 +65,17 @@ export const createClient = (req, res) => {
     db.query(checkAuthEmailQuery, [email], (err, authResults) => {
       if (err) {
         console.error("Error checking email in auth table:", err);
-        return res.status(500).send("Server error. Failed to check email.");
+        return res
+          .status(500)
+          .json({ message: "Server error. Failed to check email." });
       }
       if (authResults.length > 0) {
         return res
           .status(400)
-          .send("Email already exists in the auth table. Please use a different email address.");
+          .json({
+            message:
+              "Email already exists in the auth table. Please use a different email address.",
+          });
       }
 
       // Generate a password
@@ -74,7 +85,9 @@ export const createClient = (req, res) => {
       bcrypt.hash(password, 10, (err, hashedPassword) => {
         if (err) {
           console.error("Error hashing password:", err);
-          return res.status(500).send("Error hashing password.");
+          return res
+            .status(500)
+            .json({ message: "Error hashing password." });
         }
 
         // Insert into the client table
@@ -83,76 +96,89 @@ export const createClient = (req, res) => {
                     currency, gst_no, street, email, company_short_name, password
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-        db.query(insertClientQuery, [
-          company,
-          address,
-          VAT_number,
-          city,
-          phone,
-          state,
-          website,
-          zip_code,
-          groups,
-          country,
-          currency,
-          gst_no,
-          street,
-          email,
-          company_short_name,
-          hashedPassword
-        ], (err, clientInsertResult) => {
-          if (err) {
-            console.error("Error inserting into client table:", err);
-            return res.status(500).send("Server error. Failed to create client.");
-          }
-
-          const clientId = clientInsertResult.insertId; // Get the inserted client_id
-
-          // Insert into the auth table
-          const authInsertQuery =
-            "INSERT INTO auth (email, password, designation_id, client_id, emp_id) VALUES (?, ?, ?, ?, ?)";
-          db.query(authInsertQuery, [
+        db.query(
+          insertClientQuery,
+          [
+            company,
+            address,
+            VAT_number,
+            city,
+            phone,
+            state,
+            website,
+            zip_code,
+            groups,
+            country,
+            currency,
+            gst_no,
+            street,
             email,
+            company_short_name,
             hashedPassword,
-            6,
-            clientId,
-            emp_id
-          ], (err) => {
+          ],
+          (err, clientInsertResult) => {
             if (err) {
-              console.error("Error inserting into auth table:", err);
+              console.error("Error inserting into client table:", err);
               return res
                 .status(500)
-                .send("Client created, but failed to store credentials in auth table.");
+                .json({ message: "Server error. Failed to create client." });
             }
 
-            // Send the password via email
-            const mailOptions = {
-              from: "sivaranji5670@gmail.com", // Replace with your email
-              to: email,
-              subject: "Your Account Password",
-              text: `Hello,\n\nYour account has been created successfully. Your password is: ${password}\n\nPlease change your password after logging in for the first time.\n\nBest regards,\nYour Team`,
-            };
+            const clientId = clientInsertResult.insertId; // Get the inserted client_id
 
-            transporter.sendMail(mailOptions, (error, info) => {
-              if (error) {
-                console.error("Error sending email:", error);
-                return res
-                  .status(500)
-                  .send("Client created, but failed to send email.");
+            // Insert into the auth table
+            const authInsertQuery =
+              "INSERT INTO auth (email, password, designation_id, client_id, emp_id) VALUES (?, ?, ?, ?, ?)";
+            db.query(
+              authInsertQuery,
+              [email, hashedPassword, 6, clientId, emp_id],
+              (err) => {
+                if (err) {
+                  console.error("Error inserting into auth table:", err);
+                  return res
+                    .status(500)
+                    .json({
+                      message:
+                        "Client created, but failed to store credentials in auth table.",
+                    });
+                }
+
+                // Send the password via email
+                const mailOptions = {
+                  from: "sivaranji5670@gmail.com", // Replace with your email
+                  to: email,
+                  subject: "Your Account Password",
+                  text: `Hello,\n\nYour account has been created successfully. Your password is: ${password}\n\nPlease change your password after logging in for the first time.\n\nBest regards,\nYour Team`,
+                };
+
+                console.log(mailOptions);
+
+                transporter.sendMail(mailOptions, (error, info) => {
+                  if (error) {
+                    console.error("Error sending email:", error);
+                    return res
+                      .status(500)
+                      .json({
+                        message: "Client created, but failed to send email.",
+                      });
+                  }
+
+                  // Respond with client ID and success message
+                  res.status(201).json({
+                    clientId: clientId,
+                    message:
+                      "Client created successfully and password sent via email.",
+                  });
+                });
               }
-
-              // Respond with client ID and success message
-              res.status(201).json({
-                clientId: clientId,
-                message: "Client created successfully and password sent via email.",
-              });
-            });
-          });
-        });
+            );
+          }
+        );
       });
     });
   });
 };
+
 
 export const getClientById = (req, res) => {
   const { client_id } = req.params;

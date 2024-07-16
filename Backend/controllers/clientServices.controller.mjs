@@ -2,42 +2,54 @@ import db from "../config/db.config.mjs"; // Adjust the path as needed
 
 // Controller function to add client services
 export const addClientService = async (req, res) => {
-  const { service_id, subdivision_id, am_id, client_id } =
-    req.body.selectedSubdivisions[0];
+  const { selectedSubdivisions } = req.body;
+
+  if (
+    !selectedSubdivisions ||
+    !Array.isArray(selectedSubdivisions) ||
+    selectedSubdivisions.length === 0
+  ) {
+    return res
+      .status(400)
+      .json({ error: "At least one subdivision must be selected." });
+  }
 
   try {
-    // Validate required fields
-    if (!service_id || !subdivision_id || !am_id || !client_id) {
-      return res.status(400).json({ error: "All fields are required." });
-    }
-
-    // Insert into client_services table
     const insertQuery = `
       INSERT INTO client_services (client_id, service_id, subdivision_id, am_id)
       VALUES (?, ?, ?, ?)
     `;
 
-    const result = await new Promise((resolve, reject) => {
-      db.query(
-        insertQuery,
-        [client_id, service_id, subdivision_id, am_id],
-        (err, results) => {
-          if (err) return reject(err);
-          resolve(results);
-        }
-      );
+    const insertPromises = selectedSubdivisions.map((subdivision) => {
+      const { client_id, service_id, subdivision_id, am_id } = subdivision;
+
+      if (!client_id || !service_id || !subdivision_id || !am_id) {
+        return Promise.reject(new Error("All fields are required."));
+      }
+
+      return new Promise((resolve, reject) => {
+        db.query(
+          insertQuery,
+          [client_id, service_id, subdivision_id, am_id],
+          (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+          }
+        );
+      });
     });
 
-    // Respond with success message and inserted record ID
+    const results = await Promise.all(insertPromises);
+
     res.status(201).json({
-      message: "Client service added successfully",
-      client_service_id: result.insertId, // The ID of the inserted record
+      message: "Client services added successfully",
+      insertedIds: results.map((result) => result.insertId),
     });
   } catch (error) {
-    console.error("Error adding client service:", error);
+    console.error("Error adding client services:", error);
     res
       .status(500)
-      .json({ error: "Server error. Failed to add client service." });
+      .json({ error: "Server error. Failed to add client services." });
   }
 };
 
@@ -132,4 +144,23 @@ export const getClientServices = (req, res) => {
 
     res.status(200).json(Object.values(services));
   });
+};
+
+export const getAccountManagers = async (req, res) => {
+  try {
+    // const { designation_id } = req.params;
+    // if (designation_id !== '2' && designation_id !== '3') {
+    //   return res.status(400).send('Invalid designation_id. Must be 2 (Account Manager) or 3 (Senior Consultant).');
+    // }
+
+    // Example query to fetch account managers
+    const query = "SELECT am_id, am_name FROM account_manager_types";
+    db.query(query, (err, accountManagers) => {
+      res.status(200).json(accountManagers);
+    });
+    // Example of sending fetched account managers as response
+  } catch (error) {
+    console.error("Error fetching account managers:", error);
+    res.status(500).send("Failed to fetch account managers.");
+  }
 };

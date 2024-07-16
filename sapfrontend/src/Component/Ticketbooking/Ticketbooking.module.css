@@ -1,0 +1,133 @@
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.uniform-width {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.file-upload {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  border-radius: 4px;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.file-upload.dragging {
+  border-color: #333;
+}
+
+.file-upload-label {
+  display: block;
+  cursor: pointer;
+}
+
+.file-name {
+  margin-top: 10px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.dragimg {
+  height: 25px;
+  width: 25px;
+  color: white !important;
+}
+
+.ticketbutton {
+  background-color: #2c3d5f !important;
+  color: white !important;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ticketbutton:hover {
+  background-color: #1a243b;
+}
+
+.bgticket {
+  background-color: #3e51b5;
+  color: white;
+}
+
+.totalbg {
+  background-color: #ececec;
+  color: #333;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.shadowcard {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 4px 2px 30px 4px rgba(3, 60, 248, 0.1);
+  border: 0px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.tckt {
+  background-image: linear-gradient(45deg, rgb(37, 37, 150), rgb(82, 82, 241));
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.25em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (min-width: 768px) {
+  .shadowcard {
+    min-width: 600px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .shadowcard {
+    min-width: 800px;
+  }
+}
