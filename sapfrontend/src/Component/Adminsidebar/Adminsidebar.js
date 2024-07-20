@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAddressCard, faBars, faHotel, faTimes, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faAddressCard,
+  faHotel,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
 import { Nav, Navbar } from "react-bootstrap";
+import { NavLink, useNavigate } from "react-router-dom";
+import axios from "../axios/axiosConfig";
 import "./Adminsidebar.css"; // Import your custom CSS file for additional styling
-import { Link } from "react-router-dom";
-import { NavLink } from "react-router-dom";
 
 const AdminSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,15 +17,40 @@ const AdminSidebar = () => {
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
+  const navigate = useNavigate();
 
   // Listen to window resize to update screen size status
   window.addEventListener("resize", () => {
     setIsSmallScreen(window.innerWidth <= 991);
   });
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:5002/api/auth/protected-route")
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.error("Verification error:", error);
+        navigate("/"); // Redirect to login if verification fails
+      });
+  }, [navigate]);
+
+  const handleLogout = () => {
+    axios
+      .post("http://localhost:5002/api/auth/logout")
+      .then((res) => {
+        if (res.data === "Logged out successfully") {
+          navigate("/");
+        }
+      })
+      .catch((error) => {
+        console.error("Logout failed:", error);
+      });
+  };
+
   return (
     <>
-      {/* Navbar for small devices */}
       {isSmallScreen && (
         <Navbar expand="lg" variant="dark" bg="primary" className="fixed-top">
           <Navbar.Brand href="#home">Navbar</Navbar.Brand>
@@ -34,43 +63,63 @@ const AdminSidebar = () => {
             className={`${isOpen ? "show" : ""}`}
           >
             <Nav className="ml-auto">
-              <NavLink to={"/"} className="text-light text-decoration-none my-2">
+              <NavLink
+                to={"/"}
+                className="text-light text-decoration-none my-2"
+              >
                 Home
               </NavLink>
-              <NavLink to={"/admin/client"} className="text-light text-decoration-none my-2">
+              <NavLink
+                to={"/admin/client"}
+                className="text-light text-decoration-none my-2"
+              >
                 Company Registration
               </NavLink>
-              <NavLink to={"/admin/member"} className="text-light text-decoration-none my-2">
+              <NavLink
+                to={"/admin/member"}
+                className="text-light text-decoration-none my-2"
+              >
                 Member Registration
               </NavLink>
             </Nav>
           </Navbar.Collapse>
         </Navbar>
       )}
-
-      {/* Sidebar for large devices */}
       {!isSmallScreen && (
         <div className={`sidebar ${isOpen ? "open" : ""}`}>
-          <div className="sidebar-toggle" onClick={toggleSidebar}>
-            {/* <FontAwesomeIcon icon={isOpen ? faTimes : faBars} /> */}
-          </div>
-          <Nav className="flex-column text-dark">  
-            <h4 className="text-light text-decoration-none mx-3 my-3">Welcome </h4> 
-            <NavLink to={"/admin/client"} className="text-light text-decoration-none mx-3 my-3" ><FontAwesomeIcon icon={faHotel} className="me-2"/>
-              Company Registration
+          <div className="sidebar-toggle" onClick={toggleSidebar}></div>
+          <Nav className="flex-column text-dark">
+            <h4 className="text-light text-decoration-none mx-3 my-3">
+              Welcome
+            </h4>
+            <NavLink
+              to={"/admin/client"}
+              className="text-light text-decoration-none mx-3 my-3"
+            >
+              <FontAwesomeIcon icon={faHotel} className="me-2" /> Company
+              Registration
             </NavLink>
-
-            <NavLink to={`/admin/member`} className="text-light text-decoration-none mx-3 my-3" ><FontAwesomeIcon icon={faAddressCard} className="me-2"/>
-              Member Registration
+            <NavLink
+              to={`/admin/member`}
+              className="text-light text-decoration-none mx-3 my-3"
+            >
+              <FontAwesomeIcon icon={faAddressCard} className="me-2" /> Member
+              Registration
             </NavLink>
- 
-            <NavLink to={`/admin/clientdeatil`} className="text-light text-decoration-none mx-3 my-3" ><FontAwesomeIcon icon={faAddressCard} className="me-2"/>
-              Client Details
+            <NavLink
+              to={`/admin/clientdeatil`}
+              className="text-light text-decoration-none mx-3 my-3"
+            >
+              <FontAwesomeIcon icon={faAddressCard} className="me-2" /> Client
+              Details
             </NavLink>
-
-            <NavLink to={`/`} className="text-light text-decoration-none mx-3 my-3"><FontAwesomeIcon icon={faUser} className="me-2"/>
-               Logout
-           </NavLink>
+            <NavLink
+              onClick={handleLogout}
+              to={`/`}
+              className="text-light text-decoration-none mx-3 my-3"
+            >
+              <FontAwesomeIcon icon={faUser} className="me-2" /> Logout
+            </NavLink>
           </Nav>
         </div>
       )}

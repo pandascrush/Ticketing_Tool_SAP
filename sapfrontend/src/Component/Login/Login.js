@@ -1,19 +1,18 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Modal, Button } from "react-bootstrap";
 import axios from "axios";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [identifier, setIdentifier] = useState();
-  const [password, setPassword] = useState();
-  const nav = useNavigate();
+  const [identifier, setIdentifier] = useState()
+  const [password, setPassword] = useState()
+  const nav = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // console.log(identifier, password);
+    axios.defaults.withCredentials = true;
     axios
       .post(`http://localhost:5002/api/auth/login`, { identifier, password })
       .then((res) => {
@@ -30,6 +29,10 @@ function Login() {
             nav(`/manager/${btoa(id)}`);
           } else if (res.data.designation_id === 1) {
             nav(`/admin/client`);
+          }
+          else if(res.data.designation_id === 3){
+            const id = res.data.emp_id
+            nav(`/seniorcons/${btoa(id)}`)
           }
         } else {
           nav("/");

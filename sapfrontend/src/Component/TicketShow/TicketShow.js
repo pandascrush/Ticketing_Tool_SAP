@@ -6,7 +6,7 @@ import styles from "./Ticketshow.module.css"; // Import CSS module
 function TicketShow() {
   const { id, com } = useParams();
   const decodedId = atob(id);
-  const Company_name = atob(com);
+  const company_name = atob(com);
 
   const [tickets, setTickets] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -16,7 +16,7 @@ function TicketShow() {
   useEffect(() => {
     axios
       .get(
-        `http://localhost:5002/api/tickets/getAMTicketDetail/${decodedId}/${Company_name}`
+        `http://localhost:5002/api/tickets/getAMTicketDetail/${decodedId}/${company_name}`
       )
       .then((res) => {
         setTickets(res.data); // Assuming res.data contains an array of tickets with client emails
@@ -33,7 +33,7 @@ function TicketShow() {
       .catch((error) => {
         console.error("Error fetching employees:", error);
       });
-  }, [decodedId, Company_name]);
+  }, [decodedId, company_name]);
 
   const handleAssign = (ticket) => {
     const employeeName = selectedEmployees[ticket.ticket_id];
@@ -42,6 +42,7 @@ function TicketShow() {
     if (selectedEmployee) {
       const consultantMail = selectedEmployee.email;
       const clientMail = ticket.email; // Assuming client_email is a field in the ticket
+      const consultant_emp_id = selectedEmployee.emp_id;
 
       console.log(
         `Assigning ticket ${ticket.ticket_id} to employee ${employeeName} ${consultantMail} ${clientMail}`
@@ -54,14 +55,20 @@ function TicketShow() {
           clientMail,
           consultantMail,
           ticketId: ticket.ticket_id,
+          consultant_emp_id
         })
         .then((res) => {
           console.log(res.data);
-          if (res.data.message === "Ticket assigned, emails sent, and status updated successfully.") {
+          if (
+            res.data.message ===
+            "Ticket assigned, emails sent, and status updated successfully."
+          ) {
             alert("Ticket Assigned Successfully");
           } else if (res.data.message === "Error sending email to client.") {
             alert("Error sending email to client.");
-          } else if (res.data.message === "Error sending email to consultant.") {
+          } else if (
+            res.data.message === "Error sending email to consultant."
+          ) {
             alert("Error sending email to consultant.");
           } else if (res.data.message === "Error updating ticket status.") {
             alert("Error updating ticket status.");
@@ -84,20 +91,35 @@ function TicketShow() {
   };
 
   return (
-    <>
+    <div className={styles.container}>
       {tickets.map((ticket) => (
-        <div key={ticket.ticket_id} className={`card m-4 ${styles.cardcolor} p-2`}>
+        <div
+          key={ticket.ticket_id}
+          className={`card m-4 ${styles.cardcolor} p-2`}
+        >
           <label>
-            <b>Company name</b>
+            <b>Company Name:</b>
           </label>
           <p>{ticket.company_name}</p>
           <label>
             <b>Ticket Body:</b>
           </label>
           <p>{ticket.ticket_body}</p>
+          {ticket.screenshot && (
+            <div className={styles.screenshotContainer}>
+              <label>
+                <b>Screenshot:</b>
+              </label>
+              <img
+                src={ticket.screenshot}
+                alt="Screenshot"
+                className={styles.screenshot}
+              />
+            </div>
+          )}
           <div className="d-flex justify-content-between align-items-center">
             <select
-              className="form-select"
+              className={`form-select ${styles.select}`}
               value={selectedEmployees[ticket.ticket_id] || ""}
               onChange={(e) =>
                 handleEmployeeChange(ticket.ticket_id, e.target.value)
@@ -116,16 +138,12 @@ function TicketShow() {
               onClick={() => handleAssign(ticket)}
               disabled={!selectedEmployees[ticket.ticket_id] || loading}
             >
-              {loading ? (
-                <span className={styles.spinner}></span>
-              ) : (
-                "Assign"
-              )}
+              {loading ? <span className={styles.spinner}></span> : "Assign"}
             </button>
           </div>
         </div>
       ))}
-    </>
+    </div>
   );
 }
 

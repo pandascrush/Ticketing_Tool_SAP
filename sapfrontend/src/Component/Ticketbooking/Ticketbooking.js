@@ -13,14 +13,16 @@ const TicketForm = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     subject: "",
     ticket_body: "",
     client_id: client_id,
     priority_id: "1",
     subdivision_id: "",
     screenshot: null,
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
 
   useEffect(() => {
     axios
@@ -86,6 +88,7 @@ const TicketForm = () => {
         alert("Ticket created, but failed to send email to client.");
       }
 
+      setFormData(initialFormData); // Reset form data
       setLoading(false);
     } catch (error) {
       console.error("Error creating ticket:", error);

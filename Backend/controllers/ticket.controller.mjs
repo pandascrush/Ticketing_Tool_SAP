@@ -220,29 +220,29 @@ export const getAccountManagerTicketDetails = (req, res) => {
   const { am_id, company_name } = req.params;
 
   const query = `
-        SELECT 
-    tr.ticket_id,
-    tr.subject,
-    tr.ticket_body,
-    tr.screenshot,
-    tr.client_id,
-    tr.priority_id,
-    tr.company_name,
-    tr.service_id,
-    s.service_name,
-    c.company AS client_company_name,
-    c.email
-FROM
-    ticket_raising tr
-JOIN
-    services s ON tr.service_id = s.service_id
-JOIN
-    client c ON tr.client_id = c.client_id
-WHERE
-    tr.am_id = ? AND tr.company_name = ?
-ORDER BY
-    tr.timestamp DESC;
-    `;
+    SELECT 
+      tr.ticket_id,
+      tr.subject,
+      tr.ticket_body,
+      tr.screenshot,
+      tr.client_id,
+      tr.priority_id,
+      tr.company_name,
+      tr.service_id,
+      s.service_name,
+      c.company AS client_company_name,
+      c.email
+    FROM
+      ticket_raising tr
+    JOIN
+      services s ON tr.service_id = s.service_id
+    JOIN
+      client c ON tr.client_id = c.client_id
+    WHERE
+      tr.am_id = ? AND tr.company_name = ?
+    ORDER BY
+      tr.timestamp DESC;
+  `;
 
   db.query(query, [am_id, company_name], (err, results) => {
     if (err) {
@@ -250,13 +250,20 @@ ORDER BY
       return res.status(500).send("Failed to fetch ticket details.");
     }
 
-    res.status(200).json(results);
+    // Adding the base URL to the screenshot path
+    const modifiedResults = results.map(ticket => ({
+      ...ticket,
+      screenshot: ticket.screenshot ? `http://localhost:5002${ticket.screenshot}` : null
+    }));
+
+    res.status(200).json(modifiedResults);
   });
 };
 
+
 // Assigning ticket to the consultant
 export const assignTicket = (req, res) => {
-  const { clientMail, consultantMail, ticketId } = req.body;
+  const { clientMail, consultantMail, ticketId, consultant_emp_id } = req.body;
 
   // Send email to the client
   const clientMailOptions = {
@@ -301,8 +308,8 @@ export const assignTicket = (req, res) => {
       }
 
       // Update ticket status in the database
-      const updateTicketQuery = 'UPDATE ticket_raising SET ticket_status_id = 2 WHERE ticket_id = ?';
-      db.query(updateTicketQuery, [ticketId], (err, results) => {
+      const updateTicketQuery = 'UPDATE ticket_raising SET ticket_status_id = 2, consultant_emp_id = ? WHERE ticket_id = ?';
+      db.query(updateTicketQuery, [consultant_emp_id,ticketId], (err, results) => {
         if (err) {
           console.error('Error updating ticket status:', err);
           return res.status(500).json({ message: 'Error updating ticket status.' });

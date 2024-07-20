@@ -1,0 +1,49 @@
+.container {
+    margin: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .listItem {
+    margin-bottom: 10px;
+  }
+  
+  .link {
+    text-decoration: none;
+    color: #d5272a;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .link:hover {
+    text-decoration: underline;
+  }
+  
+  .ticketCount {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .icon {
+    margin-right: 5px;
+    color: #007bff;
+  }
+  

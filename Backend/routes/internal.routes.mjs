@@ -12,4 +12,5 @@ router.get("/internals", getAllInternals);
 router.post("/register", createInternal);
 router.get('/getInternal/:id',getInternalByHeadId)
 
+
 export default router;

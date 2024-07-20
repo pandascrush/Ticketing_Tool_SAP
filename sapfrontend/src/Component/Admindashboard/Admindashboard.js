@@ -13,7 +13,7 @@ export function AdminClientRegister() {
           <div className="col-lg-2">
             <AdminSidebar />
           </div>
-          <div className="c>lg-10">
+          <div className="col-lg-10">
             <ClientRegister />
           </div>
         </div>
@@ -30,7 +30,7 @@ export function AdminServiceSection() {
           <div className="col-lg-2">
             <AdminSidebar />
           </div>
-          <div className="c>lg-10">
+          <div className="col-lg-10">
             <Service />
           </div>
         </div>
@@ -47,7 +47,7 @@ export function AdminMemberRegister() {
           <div className="col-lg-2">
             <AdminSidebar />
           </div>
-          <div className="c>lg-10">
+          <div className="col-lg-10">
             <MemberRegister />
           </div>
         </div>
@@ -64,7 +64,7 @@ export function AdminClientList() {
           <div className="col-lg-2">
             <AdminSidebar />
           </div>
-          <div className="c>lg-10">
+          <div className="col-lg-10">
             <ClientList />
           </div>
         </div>

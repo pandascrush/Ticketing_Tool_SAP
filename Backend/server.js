@@ -9,7 +9,11 @@ import authRoutes from "./routes/auth.routes.mjs";
 import ticketRoutes from "./routes/ticket.routes.mjs";
 import clientServicesRoutes from "./routes/clientService.routes.mjs";
 import adminRouets from './routes/admin.routes.mjs'
+import seniorConsultant from './routes/s.consultant.routes.mjs'
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import { verifyToken } from "./middleware/Verification.mjs";
+import './controllers/remainder.controller.mjs'
 
 const app = express();
 
@@ -23,6 +27,7 @@ const corsOptions = {
 
 // Apply CORS middleware with the specified options
 app.use(cors(corsOptions));
+app.use(cookieParser())
 
 // Handle preflight requests
 app.options('*', cors(corsOptions));
@@ -30,6 +35,7 @@ app.use(express.json());
 
 // Define routes
 app.use("/api/user", userRoutes);
+app.use('/verify',verifyToken,authRoutes)
 app.use("/api/internal", internalRoutes);
 app.use("/api/desig", designationRoutes);
 app.use("/api/client", clientRoutes);
@@ -37,6 +43,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/serve", clientServicesRoutes);
 app.use("/api/admin",adminRouets)
+app.use('/api/seniorcons',seniorConsultant)
 
 // Static files
 app.use("/uploads", express.static("uploads"));
