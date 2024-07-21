@@ -1,0 +1,74 @@
+.container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+  }
+  
+  .loadingIcon {
+    margin-right: 10px;
+  }
+  
+  .list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .cardTitle {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .cardText {
+    margin-bottom: 10px;
+  }
+  
+  .screenshotContainer {
+    margin-top: 10px;
+  }
+  
+  .screenshot {
+    max-width: 100%;
+    border-radius: 4px;
+  }
+  
+  .correctedFileLink {
+    display: block;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .correctedFileLink:hover {
+    text-decoration: underline;
+  }
+  
+  .timestamp {
+    font-size: 14px;
+    color: #6c757d;
+  }
+  

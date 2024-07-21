@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import styles from "./Ticketshow.module.css"; // Import CSS module
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons"; // Example icon
 
 function TicketShow() {
   const { id, com } = useParams();
@@ -55,7 +57,7 @@ function TicketShow() {
           clientMail,
           consultantMail,
           ticketId: ticket.ticket_id,
-          consultant_emp_id
+          consultant_emp_id,
         })
         .then((res) => {
           console.log(res.data);
@@ -140,6 +142,15 @@ function TicketShow() {
             >
               {loading ? <span className={styles.spinner}></span> : "Assign"}
             </button>
+            <Link
+              to={`/manager/track-status/${btoa(decodedId)}/${btoa(
+                ticket.ticket_id
+              )}`}
+              className={styles.trackStatusLink}
+            >
+              <FontAwesomeIcon icon={faEye} className={styles.trackIcon} />
+              <span>Track Status</span>
+            </Link>
           </div>
         </div>
       ))}

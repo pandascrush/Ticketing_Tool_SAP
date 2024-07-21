@@ -63,6 +63,22 @@
   animation: spinner-border 0.75s linear infinite;
 }
 
+.trackStatusLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #007bff;
+}
+
+.trackIcon {
+  margin-right: 8px;
+}
+
+.trackStatusLink:hover {
+  text-decoration: underline;
+}
+
+
 @keyframes spinner-border {
   to {
     transform: rotate(360deg);

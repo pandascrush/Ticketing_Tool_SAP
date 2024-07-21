@@ -14,6 +14,7 @@ import {
   Amdashboard,
   AmdTicketCount,
   AmdTicketShow,
+  AmdTicketTrack,
 } from "./Component/Amdashboard/Amdashboard";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AdminSidebar from "./Component/Adminsidebar/Adminsidebar";
@@ -22,7 +23,11 @@ import Services from "./Component/Clientregistration/Service";
 import Showtickets from "./Component/Showtickets/Showtickets";
 import MemberRegister from "./Component/MemberRegister/MemberRegister";
 import Amprofile from "./Component/Amprofile/Amprofile";
-import { SeniorConsultantCompany, SeniorConsultantTickets, SeniorConsultantTicketsSummary } from "./Component/Consultant Dashboard/SeniorConsultant/SeniorConsultantDashboard";
+import {
+  SeniorConsultantCompany,
+  SeniorConsultantTickets,
+  SeniorConsultantTicketsSummary,
+} from "./Component/Consultant Dashboard/SeniorConsultant/SeniorConsultantDashboard";
 
 function App() {
   return (
@@ -44,11 +49,24 @@ function App() {
             path="/manager/showtickets/:id/:com"
             Component={AmdTicketShow}
           />
+          <Route
+            path="/manager/track-status/:am_id/:ticket_id"
+            Component={AmdTicketTrack}
+          />
 
           {/*Senior Consultant Routes*/}
-          <Route path="/seniorcons/:id" Component={SeniorConsultantTicketsSummary} />
-          <Route path="/seniorcons/tickets/:id" Component={SeniorConsultantCompany} />
-          <Route path="/seniorcons/tickets/:id/:company" Component={SeniorConsultantTickets} />
+          <Route
+            path="/seniorcons/:id"
+            Component={SeniorConsultantTicketsSummary}
+          />
+          <Route
+            path="/seniorcons/tickets/:id"
+            Component={SeniorConsultantCompany}
+          />
+          <Route
+            path="/seniorcons/tickets/:id/:company"
+            Component={SeniorConsultantTickets}
+          />
 
           {/*Client Routes*/}
           <Route

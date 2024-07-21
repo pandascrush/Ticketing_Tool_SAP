@@ -1,71 +1,117 @@
 .container {
-    padding: 20px;
-    max-width: 800px;
-    margin: auto;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .header {
-    text-align: center;
-    font-size: 2em;
-    margin-bottom: 20px;
-    color: #333;
-  }
-  
-  .list {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .listItem {
-    background-color: #fff;
-    margin: 10px 0;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .subject {
-    font-size: 1.5em;
-    color: #007bff;
-  }
-  
-  .body {
-    font-size: 1em;
-    color: #555;
-  }
-  
-  .status {
-    font-size: 1em;
-    color: #555;
-    display: flex;
-    align-items: center;
-  }
-  
-  .timestamp {
-    font-size: 0.9em;
-    color: #777;
-  }
-  
-  .screenshotContainer {
-    margin-top: 10px;
-  }
-  
-  .screenshot {
-    max-width: 100%;
-    height: auto;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-  }
-  
-  .loadingIcon {
-    margin-left: 10px;
-    font-size: 1.2em;
-    color: #007bff;
-  }
-  
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.8em;
+  color: #333;
+}
+
+.list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.listItem {
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.listItem:hover {
+  transform: translateY(-5px);
+}
+
+.ticketHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.subject {
+  font-size: 1.2em;
+  color: #333;
+}
+
+.status {
+  font-size: 1em;
+  color: #777;
+}
+
+.loadingIcon {
+  margin-left: 10px;
+  color: #ff9800;
+}
+
+.body {
+  margin: 10px 0;
+  color: #555;
+}
+
+.timestamp {
+  font-size: 0.9em;
+  color: #999;
+}
+
+.screenshotContainer {
+  margin: 10px 0;
+}
+
+.screenshot {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.fileUploadContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.fileInput {
+  display: none;
+}
+
+.chooseFileButton {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.fileName {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #333;
+}
+
+.submitButton {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submitButton:hover,
+.chooseFileButton:hover {
+  background-color: #0056b3; /* Darker blue for hover */
+}

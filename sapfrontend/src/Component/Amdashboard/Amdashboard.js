@@ -4,6 +4,7 @@ import TicketSummary from "../Summary/Summary";
 import ClientRegister from "../Clientregistration/Clientregistration";
 import TicketsCount from "../Showtickets/Showtickets";
 import TicketShow from "../TicketShow/TicketShow";
+import AccountManagerTicketTrack from "../AmTicketTrack/AccountManagerTicketTrack";
 
 export function Amdashboard() {
   return (
@@ -55,6 +56,25 @@ export function AmdTicketShow() {
     </>
   );
 }
+
+export function AmdTicketTrack() {
+  return (
+    <>
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-lg-2">
+            <Amsidebar />
+          </div>
+          <div className="col-lg-10">
+            <AccountManagerTicketTrack />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+
 
 
 
