@@ -6,6 +6,7 @@ import {
   getAccountManagerTicketDetails,
   getAccountManagerTrackTickets,
   getCompanyTicketCounts,
+  submitTicketChanges,
 } from "../controllers/ticket.controller.mjs";
 import upload from "../middleware/fileUpload.mjs";
 
@@ -28,6 +29,9 @@ router.get(
 // Assigning ticket to the consultant
 router.post("/assign", assignTicket);
 
+// track ticket submission for acc manager based on the ticket.
 router.get("/track/:am_id/:ticket_id", getAccountManagerTrackTickets);
 
+//
+router.post('/submitChanges',submitTicketChanges)
 export default router;

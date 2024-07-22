@@ -34,11 +34,9 @@ export const createTicket = (req, res) => {
         return res.status(500).json(err);
       }
       if (priorityResults.length === 0) {
-        return res
-          .status(400)
-          .json({
-            message: "Invalid priority_id. The priority level does not exist.",
-          });
+        return res.status(400).json({
+          message: "Invalid priority_id. The priority level does not exist.",
+        });
       }
 
       // Fetch the service_id using the subdivision_id
@@ -52,12 +50,10 @@ export const createTicket = (req, res) => {
             return res.status(500).json(err);
           }
           if (subdivisionResults.length === 0) {
-            return res
-              .status(400)
-              .json({
-                message:
-                  "Invalid subdivision_id. The subdivision does not exist.",
-              });
+            return res.status(400).json({
+              message:
+                "Invalid subdivision_id. The subdivision does not exist.",
+            });
           }
 
           const service_id = subdivisionResults[0].service_id;
@@ -196,12 +192,10 @@ export const createTicket = (req, res) => {
                             "Error sending email to account manager:",
                             error
                           );
-                          return res
-                            .status(500)
-                            .json({
-                              message:
-                                "Ticket created, but failed to send email to account manager.",
-                            });
+                          return res.status(500).json({
+                            message:
+                              "Ticket created, but failed to send email to account manager.",
+                          });
                         }
 
                         // Send email to client
@@ -231,12 +225,10 @@ export const createTicket = (req, res) => {
                                 "Error sending email to client:",
                                 error
                               );
-                              return res
-                                .status(500)
-                                .json({
-                                  message:
-                                    "Ticket created, but failed to send email to client.",
-                                });
+                              return res.status(500).json({
+                                message:
+                                  "Ticket created, but failed to send email to client.",
+                              });
                             }
 
                             res.status(201).json({
@@ -396,12 +388,10 @@ export const assignTicket = (req, res) => {
               .json({ message: "Error updating ticket status." });
           }
 
-          res
-            .status(200)
-            .json({
-              message:
-                "Ticket assigned, emails sent, and status updated successfully.",
-            });
+          res.status(200).json({
+            message:
+              "Ticket assigned, emails sent, and status updated successfully.",
+          });
         }
       );
     });
@@ -416,15 +406,19 @@ export const getAccountManagerTrackTickets = (req, res) => {
     return res.status(400).json({ message: "Missing required parameters." });
   }
 
-  // Query to get ticket submissions
+  // Query to get ticket submissions and consultant email
   const query = `
     SELECT
       ts.ticket_id,
       ts.subject,
+      ts.ticket_body,
       ts.screenshot,
-      ts.corrected_file
+      ts.corrected_file,
+      ts.created_at,
+      i.email AS consultant_email
     FROM
       ticket_submission ts
+      JOIN internal i ON ts.emp_id = i.emp_id
     WHERE
       ts.am_id = ? AND
       ts.ticket_id = ?
@@ -439,14 +433,43 @@ export const getAccountManagerTrackTickets = (req, res) => {
     }
 
     // Add base URL to file paths if necessary
-    const baseUrl = 'http://localhost:5002'; // Adjust as needed
-    const processedResults = results.map(ticket => ({
+    const baseUrl = "http://localhost:5002"; // Adjust as needed
+    const processedResults = results.map((ticket) => ({
       ...ticket,
       screenshot: ticket.screenshot ? `${baseUrl}/${ticket.screenshot}` : null,
-      corrected_file: ticket.corrected_file ? `${baseUrl}/${ticket.corrected_file}` : null,
+      corrected_file: ticket.corrected_file
+        ? `${baseUrl}/${ticket.corrected_file}`
+        : null,
     }));
 
     res.status(200).json(processedResults);
   });
 };
 
+// In your tickets controller
+
+export const submitTicketChanges = (req, res) => {
+  const { am_id, ticket_id, consultant_email, remarks } = req.body;
+
+  if (!am_id || !ticket_id || !consultant_email || !remarks) {
+    return res.status(400).json({ message: "Missing required parameters." });
+  }
+
+  const query = `
+    INSERT INTO ticket_submission_changes (am_id, ticket_id, consultant_email, remarks)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  db.query(
+    query,
+    [am_id, ticket_id, consultant_email, remarks],
+    (err, results) => {
+      if (err) {
+        console.error("Error submitting changes:", err);
+        return res.status(500).json({ message: "Internal server error." });
+      }
+
+      res.status(200).json({ message: "Changes submitted successfully" });
+    }
+  );
+};

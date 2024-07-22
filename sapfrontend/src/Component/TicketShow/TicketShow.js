@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import styles from "./Ticketshow.module.css"; // Import CSS module
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons"; // Example icon
+import { faRoad } from "@fortawesome/free-solid-svg-icons"; // Import road icon
 
 function TicketShow() {
   const { id, com } = useParams();
@@ -99,6 +99,15 @@ function TicketShow() {
           key={ticket.ticket_id}
           className={`card m-4 ${styles.cardcolor} p-2`}
         >
+          <Link
+            to={`/manager/track-status/${btoa(decodedId)}/${btoa(
+              ticket.ticket_id
+            )}`}
+            className={styles.trackStatusLink}
+          >
+            <FontAwesomeIcon icon={faRoad} className={styles.trackIcon} />
+            <span>Track Status</span>
+          </Link>
           <label>
             <b>Company Name:</b>
           </label>
@@ -142,15 +151,6 @@ function TicketShow() {
             >
               {loading ? <span className={styles.spinner}></span> : "Assign"}
             </button>
-            <Link
-              to={`/manager/track-status/${btoa(decodedId)}/${btoa(
-                ticket.ticket_id
-              )}`}
-              className={styles.trackStatusLink}
-            >
-              <FontAwesomeIcon icon={faEye} className={styles.trackIcon} />
-              <span>Track Status</span>
-            </Link>
           </div>
         </div>
       ))}
