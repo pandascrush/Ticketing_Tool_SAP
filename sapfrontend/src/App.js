@@ -26,6 +26,7 @@ import Amprofile from "./Component/Amprofile/Amprofile";
 import {
   SeniorConsultantCompany,
   SeniorConsultantTickets,
+  SeniorConsultantTicketsSubmissionChanges,
   SeniorConsultantTicketsSummary,
 } from "./Component/Consultant Dashboard/SeniorConsultant/SeniorConsultantDashboard";
 
@@ -67,6 +68,7 @@ function App() {
             path="/seniorcons/tickets/:id/:company"
             Component={SeniorConsultantTickets}
           />
+          <Route path="/seniorcons/submissionChanges/:am_id/:ticket_id" Component={SeniorConsultantTicketsSubmissionChanges} />
 
           {/*Client Routes*/}
           <Route

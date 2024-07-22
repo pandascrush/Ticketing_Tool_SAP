@@ -175,3 +175,55 @@ export const submitTicketCorrection = (req, res) => {
     }
   );
 };
+
+export const getSubmitTicketChanges = (req, res) => {
+  const { ticket_id, am_id } = req.params;
+
+  const query = `
+    SELECT 
+      tsc.*, 
+      i.name AS am_name, 
+      i.email as ac_email
+    FROM 
+      ticket_submission_changes tsc
+    JOIN 
+      internal i ON tsc.am_id = i.am_id
+    WHERE 
+      tsc.ticket_id = ? 
+      AND tsc.am_id = ? 
+    ORDER BY 
+      tsc.created_at DESC
+  `;
+
+  db.query(query, [ticket_id, am_id], (error, changes) => {
+    if (error) {
+      console.error("Error fetching ticket submission changes:", error);
+      return res.status(500).send("Server Error");
+    }
+
+    res.json(changes);
+  });
+};
+
+
+export const getSubmitTicketChangesCount = async (req, res) => {
+  const { ticket_id } = req.params;
+
+  try {
+    db.query(
+      "SELECT COUNT(*) as count FROM ticket_submission_changes WHERE ticket_id = ?",
+      [ticket_id],
+      (err, result) => {
+        if (err) {
+          res.json(err);
+        } else {
+          const count = result[0].count;
+          res.json({ count });
+        }
+      }
+    );
+  } catch (error) {
+    console.error("Error fetching ticket submission count:", error);
+    res.status(500).send("Server Error");
+  }
+};

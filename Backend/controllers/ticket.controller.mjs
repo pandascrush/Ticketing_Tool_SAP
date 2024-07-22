@@ -463,13 +463,40 @@ export const submitTicketChanges = (req, res) => {
   db.query(
     query,
     [am_id, ticket_id, consultant_email, remarks],
-    (err, results) => {
+    async (err, results) => {
       if (err) {
         console.error("Error submitting changes:", err);
         return res.status(500).json({ message: "Internal server error." });
       }
 
-      res.status(200).json({ message: "Changes submitted successfully" });
+      // Send email to the consultant
+      try {
+        await transporter.sendMail({
+          from: "sivaranji5670@gmail.com", // Replace with your email
+          to: consultant_email,
+          subject: "Changes Addressed",
+          text: `Dear Consultant,
+
+We would like to inform you that your recent changes have been addressed.
+
+Remarks: ${remarks}
+
+Thank you.`,
+          html: `<p>Dear Consultant,</p>
+                 <p>We would like to inform you that your recent changes have been addressed.</p>
+                 <p><b>Remarks:</b> ${remarks}</p>
+                 <p>Thank you.</p>`,
+        });
+
+        res
+          .status(200)
+          .json({ message: "Changes submitted and email sent successfully" });
+      } catch (emailError) {
+        console.error("Error sending email:", emailError);
+        res
+          .status(500)
+          .json({ message: "Changes submitted, but error sending email." });
+      }
     }
   );
 };

@@ -5,10 +5,10 @@ import styles from "./AccountManagerTicketTrack.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment-timezone";
-import Modal from "react-modal"; // Import the Modal component
+import Modal from "react-modal";
 
 // Make sure to bind modal to your appElement (for screen readers)
-Modal.setAppElement("#root"); // Replace '#root' with your app's root element ID
+Modal.setAppElement("#root");
 
 const AccountManagerTicketTrack = () => {
   const { am_id, ticket_id } = useParams();
@@ -19,6 +19,7 @@ const AccountManagerTicketTrack = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTicketId, setCurrentTicketId] = useState(null);
   const [remarks, setRemarks] = useState("");
+  const [sending, setSending] = useState(false); // New state for sending spinner
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -31,6 +32,7 @@ const AccountManagerTicketTrack = () => {
       } catch (error) {
         console.error("Error fetching tickets:", error);
         setLoading(false);
+        alert("Error fetching tickets. Please try again later.");
       }
     };
 
@@ -47,32 +49,37 @@ const AccountManagerTicketTrack = () => {
     setRemarks("");
   };
 
-  const handleSendChanges = () => {
+  const handleSendChanges = async () => {
     const consultantEmail = tickets.find(
       (ticket) => ticket.ticket_id === currentTicketId
     ).consultant_email;
-    console.log(decodedId, currentTicketId, consultantEmail, remarks);
 
-    axios
-      .post("http://localhost:5002/api/tickets/submitChanges", {
+    setSending(true); // Start spinner
+
+    try {
+      const response = await axios.post("http://localhost:5002/api/tickets/submitChanges", {
         am_id: decodedId,
         ticket_id: currentTicketId,
         consultant_email: consultantEmail,
         remarks,
-      })
-      .then((res) => {
-        if (res.data.message === "Changes submitted successfully") {
-          alert("Remarks sent successfully.");
-          handleCloseModal();
-        }
-      })
-      .catch((error) => {
-        console.error("Error submitting changes:", error);
-        alert("Error submitting remarks.");
       });
+
+      setSending(false); // Stop spinner
+
+      if (response.data.message === "Changes submitted and email sent successfully") {
+        alert("Remarks sent successfully.");
+        handleCloseModal();
+      } else {
+        alert("Error: " + response.data.message);
+      }
+    } catch (error) {
+      setSending(false); // Stop spinner
+      console.error("Error submitting changes:", error);
+      alert("Error submitting remarks. Please try again later.");
+    }
   };
 
-  const handleApprove = (ticketId) => {
+  const handleApprove = async (ticketId) => {
     // Handle the approve action here
     alert(`Ticket ${ticketId} approved.`);
   };
@@ -133,8 +140,16 @@ const AccountManagerTicketTrack = () => {
           onChange={(e) => setRemarks(e.target.value)}
           className={styles.textarea}
         />
-        <button onClick={handleSendChanges} className={styles.sendButton}>
-          Send
+        <button onClick={handleSendChanges} className={styles.sendButton} disabled={sending}>
+          {sending ? (
+            <FontAwesomeIcon
+              icon={faSpinner}
+              spin
+              className={styles.loadingIcon}
+            />
+          ) : (
+            "Send"
+          )}
         </button>
         <button onClick={handleCloseModal} className={styles.closeButton}>
           Close

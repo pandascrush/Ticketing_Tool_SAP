@@ -32,6 +32,6 @@ router.post("/assign", assignTicket);
 // track ticket submission for acc manager based on the ticket.
 router.get("/track/:am_id/:ticket_id", getAccountManagerTrackTickets);
 
-//
+// Account manager send if any changes need in the submission
 router.post('/submitChanges',submitTicketChanges)
 export default router;

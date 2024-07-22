@@ -1,17 +1,18 @@
+/* TicketsList.module.css */
+
 .container {
-  max-width: 800px;
+  width: 90%;
   margin: 0 auto;
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .header {
   text-align: center;
+  font-size: 2em;
   margin-bottom: 20px;
-  font-size: 1.8em;
-  color: #333;
 }
 
 .list {
@@ -20,47 +21,73 @@
 }
 
 .listItem {
-  padding: 15px;
-  margin-bottom: 15px;
-  background-color: #fff;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+  margin-bottom: 20px;
+  padding: 20px;
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 .listItem:hover {
-  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .ticketHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .subject {
-  font-size: 1.2em;
-  color: #333;
+  font-size: 1.5em;
+  margin: 0;
 }
 
 .status {
-  font-size: 1em;
-  color: #777;
-}
-
-.loadingIcon {
-  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  font-size: 1.1em;
+  font-weight: bold;
   color: #ff9800;
 }
 
+.bellLink {
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.bellContainer {
+  position: relative;
+}
+
+.bellIcon {
+  font-size: 1.5em;
+  color: #ff9800;
+}
+
+.bellCount {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #ff9800;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.8em;
+}
+
 .body {
+  font-size: 1em;
   margin: 10px 0;
-  color: #555;
 }
 
 .timestamp {
   font-size: 0.9em;
-  color: #999;
+  color: #666;
 }
 
 .screenshotContainer {
@@ -69,49 +96,63 @@
 
 .screenshot {
   max-width: 100%;
+  border: 1px solid #ddd;
   border-radius: 4px;
+  padding: 5px;
 }
 
 .fileUploadContainer {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  margin-top: 10px;
 }
 
 .fileInput {
   display: none;
 }
 
+.error {
+  color: red;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
 .chooseFileButton {
   display: flex;
   align-items: center;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #007bff;
-  color: #fff;
+  background-color: #4caf50;
+  color: white;
   border: none;
+  padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.chooseFileButton:hover {
+  background-color: #45a049;
+}
+
+.fileIcon {
+  margin-right: 10px;
 }
 
 .fileName {
-  margin-top: 5px;
-  font-size: 14px;
-  color: #333;
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 10px;
 }
 
 .submitButton {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #28a745;
-  color: #fff;
+  background-color: #008cba;
+  color: white;
   border: none;
+  padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.submitButton:hover,
-.chooseFileButton:hover {
-  background-color: #0056b3; /* Darker blue for hover */
+.submitButton:hover {
+  background-color: #007bb5;
 }
