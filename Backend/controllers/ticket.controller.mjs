@@ -118,14 +118,13 @@ export const createTicket = (req, res) => {
                   company_name,
                   service_id,
                   am_id,
-                  subdivision_id,
                 ],
                 (err, results) => {
                   if (err) {
                     return res.status(500).json(err);
                   }
 
-                  // Query to get the account manager's email and service head email
+                  // Query to get the account manager's email and client email
                   const emailQuery = `
                 SELECT
                   s.service_name,
@@ -173,17 +172,17 @@ export const createTicket = (req, res) => {
                         to: account_manager_email,
                         subject: "New Ticket Raised",
                         html: `
-                  <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-                    <h2 style="color: #333;">New Ticket Raised</h2>
-                    <p style="font-size: 16px;">A new ticket has been raised for your service:</p>
-                    <ul style="list-style-type: none; padding: 0;">
-                      <li><strong>Service:</strong> ${service_name}</li>
-                      <li><strong>Subdivision:</strong> ${subdivision_name}</li>
-                      <li><strong>Subject:</strong> ${subject}</li>
-                    </ul>
-                    <p style="font-size: 16px;">Please check the details and address the issue as soon as possible.</p>
-                  </div>
-                `,
+                    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                      <h2 style="color: #333;">New Ticket Raised</h2>
+                      <p style="font-size: 16px;">A new ticket has been raised for your service:</p>
+                      <ul style="list-style-type: none; padding: 0;">
+                        <li><strong>Service:</strong> ${service_name}</li>
+                        <li><strong>Subdivision:</strong> ${subdivision_name}</li>
+                        <li><strong>Subject:</strong> ${subject}</li>
+                      </ul>
+                      <p style="font-size: 16px;">Please check the details and address the issue as soon as possible.</p>
+                    </div>
+                  `,
                       };
 
                       transporter.sendMail(amMailOptions, (error, info) => {
@@ -204,17 +203,17 @@ export const createTicket = (req, res) => {
                           to: client_email,
                           subject: "Ticket Raised Confirmation",
                           html: `
-                    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-                      <h2 style="color: #333;">Ticket Raised Confirmation</h2>
-                      <p style="font-size: 16px;">You have raised a ticket for the service:</p>
-                      <ul style="list-style-type: none; padding: 0;">
-                        <li><strong>Service:</strong> ${service_name}</li>
-                        <li><strong>Subdivision:</strong> ${subdivision_name}</li>
-                        <li><strong>Subject:</strong> ${subject}</li>
-                      </ul>
-                      <p style="font-size: 16px;">We will address your issue as soon as possible. Thank you for your patience.</p>
-                    </div>
-                  `,
+                      <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                        <h2 style="color: #333;">Ticket Raised Confirmation</h2>
+                        <p style="font-size: 16px;">You have raised a ticket for the service:</p>
+                        <ul style="list-style-type: none; padding: 0;">
+                          <li><strong>Service:</strong> ${service_name}</li>
+                          <li><strong>Subdivision:</strong> ${subdivision_name}</li>
+                          <li><strong>Subject:</strong> ${subject}</li>
+                        </ul>
+                        <p style="font-size: 16px;">We will address your issue as soon as possible. Thank you for your patience.</p>
+                      </div>
+                    `,
                         };
 
                         transporter.sendMail(
@@ -230,6 +229,53 @@ export const createTicket = (req, res) => {
                                   "Ticket created, but failed to send email to client.",
                               });
                             }
+
+                            // Log the actions
+                            const logQuery = `
+                      INSERT INTO action_logs (
+                        action_type, action_details, timestamp, ticket_id, emp_id, client_id
+                      ) VALUES (?, ?, NOW(), ?, ?, ?)
+                    `;
+
+                            // Assuming the action here is 'Ticket Created'
+                            const logActions = [
+                              {
+                                type: "Ticket Created",
+                                details: `Ticket ${uniqueTicketId} created, Account_Manager_Id ${am_id}`,
+                                emp_id: null,
+                                client_id: client_id,
+                              },
+                              {
+                                type: "Email Sent to Account Manager",
+                                details: `Email sent to ${account_manager_email} regarding ticket ${uniqueTicketId}, Account_Manager_Id ${am_id}`,
+                                emp_id: null,
+                                client_id: client_id,
+                              },
+                              {
+                                type: "Email Sent to Client",
+                                details: `Email sent to ${client_email} regarding ticket ${uniqueTicketId}, Account_Manager_Id ${am_id}`,
+                                emp_id: null,
+                                client_id: client_id,
+                              },
+                            ];
+
+                            logActions.forEach((log) => {
+                              db.query(
+                                logQuery,
+                                [
+                                  log.type,
+                                  log.details,
+                                  uniqueTicketId,
+                                  log.emp_id,
+                                  log.client_id,
+                                ],
+                                (err) => {
+                                  if (err) {
+                                    console.error("Error logging action:", err);
+                                  }
+                                }
+                              );
+                            });
 
                             res.status(201).json({
                               message:
@@ -326,74 +372,135 @@ export const getAccountManagerTicketDetails = (req, res) => {
 
 // Assigning ticket to the consultant
 export const assignTicket = (req, res) => {
-  const { clientMail, consultantMail, ticketId, consultant_emp_id } = req.body;
+  const {
+    clientMail,
+    consultantMail,
+    ticketId,
+    consultant_emp_id,
+    priority,
+    am_id,
+  } = req.body;
 
-  // Send email to the client
-  const clientMailOptions = {
-    from: "sivaranji5670@gmail.com",
-    to: clientMail,
-    subject: "Your Ticket Has Been Transferred",
-    html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-        <h2 style="color: #333;">Ticket Transferred</h2>
-        <p>Your ticket has been transferred to a new consultant. Please find the details below:</p>
-        <p><strong>New Consultant Email:</strong> ${consultantMail}</p>
-        <p>Thank you for your patience.</p>
-      </div>
-    `,
-  };
+  // Query to fetch emp_id based on am_id
+  const fetchEmpIdQuery = "SELECT emp_id FROM internal WHERE am_id = ?";
 
-  transporter.sendMail(clientMailOptions, (err, info) => {
+  db.query(fetchEmpIdQuery, [am_id], (err, result) => {
     if (err) {
-      console.error("Error sending email to client:", err);
-      return res
-        .status(500)
-        .json({ message: "Error sending email to client." });
+      console.error("Error fetching emp_id:", err);
+      return res.status(500).json({ message: "Error fetching emp_id." });
     }
 
-    // Send email to the consultant
-    const consultantMailOptions = {
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Account Manager not found." });
+    }
+
+    const emp_id = result[0].emp_id;
+
+    // Send email to the client
+    const clientMailOptions = {
       from: "sivaranji5670@gmail.com",
-      to: consultantMail,
-      subject: "New Task Assigned",
+      to: clientMail,
+      subject: "Your Ticket Has Been Transferred",
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-          <h2 style="color: #333;">New Task Assigned</h2>
-          <p>You have been assigned a new task. Please find the details below:</p>
-          <p><strong>Client Email:</strong> ${clientMail}</p>
-          <p>Please complete the task within the specified duration.</p>
+          <h2 style="color: #333;">Ticket Transferred</h2>
+          <p>Your ticket has been transferred to a new consultant. Please find the details below:</p>
+          <p><strong>New Consultant Email:</strong> ${consultantMail}</p>
+          <p>Thank you for your patience.</p>
         </div>
       `,
     };
 
-    transporter.sendMail(consultantMailOptions, (err, info) => {
+    transporter.sendMail(clientMailOptions, (err, info) => {
       if (err) {
-        console.error("Error sending email to consultant:", err);
+        console.error("Error sending email to client:", err);
         return res
           .status(500)
-          .json({ message: "Error sending email to consultant." });
+          .json({ message: "Error sending email to client." });
       }
 
-      // Update ticket status in the database
-      const updateTicketQuery =
-        "UPDATE ticket_raising SET ticket_status_id = 2, consultant_emp_id = ? WHERE ticket_id = ?";
-      db.query(
-        updateTicketQuery,
-        [consultant_emp_id, ticketId],
-        (err, results) => {
-          if (err) {
-            console.error("Error updating ticket status:", err);
-            return res
-              .status(500)
-              .json({ message: "Error updating ticket status." });
-          }
+      // Send email to the consultant
+      const consultantMailOptions = {
+        from: "sivaranji5670@gmail.com",
+        to: consultantMail,
+        subject: "New Task Assigned",
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+            <h2 style="color: #333;">New Task Assigned</h2>
+            <p>You have been assigned a new task. Please find the details below:</p>
+            <p><strong>Client Email:</strong> ${clientMail}</p>
+            <p>Please complete the task within the specified duration.</p>
+          </div>
+        `,
+      };
 
-          res.status(200).json({
-            message:
-              "Ticket assigned, emails sent, and status updated successfully.",
-          });
+      transporter.sendMail(consultantMailOptions, (err, info) => {
+        if (err) {
+          console.error("Error sending email to consultant:", err);
+          return res
+            .status(500)
+            .json({ message: "Error sending email to consultant." });
         }
-      );
+
+        // Update ticket status in the database
+        const updateTicketQuery =
+          "UPDATE ticket_raising SET ticket_status_id = 2, consultant_emp_id = ?, priority_id = ? WHERE ticket_id = ?";
+        db.query(
+          updateTicketQuery,
+          [consultant_emp_id, priority, ticketId],
+          (err, results) => {
+            if (err) {
+              console.error("Error updating ticket status:", err);
+              return res
+                .status(500)
+                .json({ message: "Error updating ticket status." });
+            }
+
+            // Define log actions
+            const logActions = [
+              {
+                type: "Ticket Assigned",
+                details: `Ticket ${ticketId} assigned to consultant ${consultantMail}`,
+                emp_id: emp_id,
+                client_id: null,
+              },
+              {
+                type: "Email Sent to Client",
+                details: `Email sent to client ${clientMail} about ticket ${ticketId}`,
+                emp_id: emp_id,
+                client_id: null, // Assuming client_id is not available
+              },
+              {
+                type: "Email Sent to Consultant",
+                details: `Email sent to consultant ${consultantMail} about ticket ${ticketId}`,
+                emp_id: emp_id,
+                client_id: null,
+                emp_id: emp_id,
+              },
+            ];
+
+            const logQuery =
+              "INSERT INTO action_logs (action_type, action_details, ticket_id, emp_id, client_id) VALUES (?, ?, ?, ?, ?)";
+
+            logActions.forEach((log) => {
+              db.query(
+                logQuery,
+                [log.type, log.details, ticketId, log.emp_id, log.client_id],
+                (err) => {
+                  if (err) {
+                    console.error("Error logging action:", err);
+                  }
+                }
+              );
+            });
+
+            res.status(200).json({
+              message:
+                "Ticket assigned, emails sent, and status updated successfully.",
+            });
+          }
+        );
+      });
     });
   });
 };
@@ -408,22 +515,25 @@ export const getAccountManagerTrackTickets = (req, res) => {
 
   // Query to get ticket submissions and consultant email
   const query = `
-    SELECT
-      ts.ticket_id,
-      ts.subject,
-      ts.ticket_body,
-      ts.screenshot,
-      ts.corrected_file,
-      ts.created_at,
-      i.email AS consultant_email
-    FROM
-      ticket_submission ts
-      JOIN internal i ON ts.emp_id = i.emp_id
-    WHERE
-      ts.am_id = ? AND
-      ts.ticket_id = ?
-    ORDER BY
-      ts.created_at DESC;
+   SELECT
+  ts.ticket_id,
+  ts.subject,
+  ts.ticket_body,
+  ts.screenshot,
+  ts.corrected_file,
+  ts.created_at,
+  i.email AS consultant_email,
+  c.email AS client_email
+FROM
+  ticket_submission ts
+  JOIN internal i ON ts.emp_id = i.emp_id
+  JOIN ticket_raising tr ON ts.ticket_id = tr.ticket_id
+  JOIN client c ON tr.client_id = c.client_id
+WHERE
+  ts.am_id = ? AND
+  ts.ticket_id = ?
+ORDER BY
+  ts.created_at DESC;
   `;
 
   db.query(query, [am_id, ticket_id], (err, results) => {
@@ -447,7 +557,6 @@ export const getAccountManagerTrackTickets = (req, res) => {
 };
 
 // In your tickets controller
-
 export const submitTicketChanges = (req, res) => {
   const { am_id, ticket_id, consultant_email, remarks } = req.body;
 
@@ -469,34 +578,89 @@ export const submitTicketChanges = (req, res) => {
         return res.status(500).json({ message: "Internal server error." });
       }
 
-      // Send email to the consultant
-      try {
-        await transporter.sendMail({
-          from: "sivaranji5670@gmail.com", // Replace with your email
-          to: consultant_email,
-          subject: "Changes Addressed",
-          text: `Dear Consultant,
+      // Get emp_id from the internal table using am_id
+      const getEmpIdQuery = `
+        SELECT emp_id FROM internal WHERE am_id = ?
+      `;
+      db.query(getEmpIdQuery, [am_id], (empIdErr, empIdResults) => {
+        if (empIdErr) {
+          console.error("Error fetching emp_id:", empIdErr);
+          return res.status(500).json({ message: "Internal server error." });
+        }
+
+        if (empIdResults.length === 0) {
+          return res.status(404).json({ message: "Employee not found." });
+        }
+
+        const emp_id = empIdResults[0].emp_id;
+
+        // Log action for ticket change submission
+        const logQuery = `
+          INSERT INTO action_logs (action_type, action_details, ticket_id, emp_id, client_id)
+          VALUES (?, ?, ?, ?, ?)
+        `;
+        const logData = [
+          "Ticket Change Submitted",
+          `Account manager ${am_id} submitted changes for ticket ${ticket_id} with remarks: ${remarks}`,
+          ticket_id,
+          emp_id,
+          null,
+        ];
+
+        db.query(logQuery, logData, (logErr) => {
+          if (logErr) {
+            console.error("Error logging action:", logErr);
+            return res.status(500).json({ message: "Internal server error." });
+          }
+
+          // Send email to the consultant
+          transporter.sendMail(
+            {
+              from: "sivaranji5670@gmail.com", // Replace with your email
+              to: consultant_email,
+              subject: "Changes Addressed",
+              text: `Dear Consultant,
 
 We would like to inform you that your recent changes have been addressed.
 
 Remarks: ${remarks}
 
 Thank you.`,
-          html: `<p>Dear Consultant,</p>
-                 <p>We would like to inform you that your recent changes have been addressed.</p>
-                 <p><b>Remarks:</b> ${remarks}</p>
-                 <p>Thank you.</p>`,
-        });
+              html: `<p>Dear Consultant,</p>
+                     <p>We would like to inform you that your recent changes have been addressed.</p>
+                     <p><b>Remarks:</b> ${remarks}</p>
+                     <p>Thank you.</p>`,
+            },
+            (emailError, info) => {
+              if (emailError) {
+                console.error("Error sending email:", emailError);
+                return res
+                  .status(500)
+                  .json({ message: "Changes submitted, but error sending email." });
+              }
 
-        res
-          .status(200)
-          .json({ message: "Changes submitted and email sent successfully" });
-      } catch (emailError) {
-        console.error("Error sending email:", emailError);
-        res
-          .status(500)
-          .json({ message: "Changes submitted, but error sending email." });
-      }
+              // Log action for sending email
+              const emailLogData = [
+                "Email Sent to Consultant",
+                `Email sent to consultant ${consultant_email} about changes for ticket ${ticket_id}`,
+                ticket_id,
+                emp_id,
+                null,
+              ];
+
+              db.query(logQuery, emailLogData, (emailLogErr) => {
+                if (emailLogErr) {
+                  console.error("Error logging email action:", emailLogErr);
+                }
+                res.status(200).json({
+                  message: "Changes submitted and email sent successfully",
+                });
+              });
+            }
+          );
+        });
+      });
     }
   );
 };
+

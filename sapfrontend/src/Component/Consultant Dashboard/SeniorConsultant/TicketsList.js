@@ -118,7 +118,7 @@ const TicketsList = () => {
                     <Typography variant="body2" color="textSecondary">
                       {ticket.status_name}
                     </Typography>
-                    {ticket.status_name === "In Progress" && (
+                    {ticket.status_name === "In Progress" || ticket.status_name === "Answered" && (
                       <Link to={`/seniorcons/submissionChanges/${btoa(amid)}/${btoa(ticket.ticket_id)}`}>
                         <IconButton aria-label="notifications">
                           <Badge badgeContent={ticketCounts[ticket.ticket_id]} color="primary">

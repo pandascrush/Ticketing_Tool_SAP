@@ -13,6 +13,7 @@ function TicketShow() {
   const [tickets, setTickets] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [selectedEmployees, setSelectedEmployees] = useState({});
+  const [priority, setPriority] = useState({});
   const [loading, setLoading] = useState(false); // State to track loading status
 
   useEffect(() => {
@@ -45,12 +46,14 @@ function TicketShow() {
       const consultantMail = selectedEmployee.email;
       const clientMail = ticket.email; // Assuming client_email is a field in the ticket
       const consultant_emp_id = selectedEmployee.emp_id;
+      const selectedPriority = priority[ticket.ticket_id]; // Get the selected priority
 
       console.log(
-        `Assigning ticket ${ticket.ticket_id} to employee ${employeeName} ${consultantMail} ${clientMail}`
+        `Assigning ticket ${ticket.ticket_id} to employee ${employeeName} ${consultantMail} ${clientMail} with priority ${selectedPriority}`
       );
 
       setLoading(true); // Set loading state when starting the assignment process
+      console.log(priority);
 
       axios
         .post(`http://localhost:5002/api/tickets/assign`, {
@@ -58,6 +61,8 @@ function TicketShow() {
           consultantMail,
           ticketId: ticket.ticket_id,
           consultant_emp_id,
+          priority: selectedPriority, // Pass the priority value to the API
+          am_id:decodedId
         })
         .then((res) => {
           console.log(res.data);
@@ -89,6 +94,13 @@ function TicketShow() {
     setSelectedEmployees((prevSelectedEmployees) => ({
       ...prevSelectedEmployees,
       [ticketId]: employeeName,
+    }));
+  };
+
+  const handlePriorityChange = (ticketId, priorityValue) => {
+    setPriority((prevPriority) => ({
+      ...prevPriority,
+      [ticketId]: priorityValue,
     }));
   };
 
@@ -143,11 +155,27 @@ function TicketShow() {
                 </option>
               ))}
             </select>
+            <select
+              className={`form-select ${styles.select}`}
+              value={priority[ticket.ticket_id] || ""}
+              onChange={(e) =>
+                handlePriorityChange(ticket.ticket_id, e.target.value)
+              }
+            >
+              <option value="">Select Priority</option>
+              <option value="1">Low</option>
+              <option value="2">Medium</option>
+              <option value="3">High</option>
+            </select>
             <button
               type="button"
               className={`btn btn-primary m-2 ${styles.ticketbutton}`}
               onClick={() => handleAssign(ticket)}
-              disabled={!selectedEmployees[ticket.ticket_id] || loading}
+              disabled={
+                !selectedEmployees[ticket.ticket_id] ||
+                !priority[ticket.ticket_id] ||
+                loading
+              }
             >
               {loading ? <span className={styles.spinner}></span> : "Assign"}
             </button>

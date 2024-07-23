@@ -1,14 +1,63 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import styles from "./AccountManagerTicketTrack.module.css";
+import {
+  Container,
+  Typography,
+  CircularProgress,
+  Box,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  Modal,
+  TextField,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import moment from "moment-timezone";
-import Modal from "react-modal";
+import { styled } from "@mui/system";
 
-// Make sure to bind modal to your appElement (for screen readers)
-Modal.setAppElement("#root");
+// Define the theme
+const theme = createTheme({
+  palette: {
+    background: {
+      paper: "#ffffff",
+    },
+  },
+  shadows: ["none", "0px 3px 5px rgba(0,0,0,0.3)"],
+  shape: {
+    borderRadius: 8,
+  },
+  spacing: 8,
+});
+
+const StyledContainer = styled(Container)({
+  marginTop: "20px",
+});
+
+const StyledCard = styled(Card)({
+  marginBottom: "20px",
+});
+
+const StyledButton = styled(Button)({
+  margin: "5px",
+});
+
+const StyledModalBox = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[1],
+  padding: theme.spacing(4),
+  borderRadius: theme.shape.borderRadius,
+  outline: "none",
+}));
 
 const AccountManagerTicketTrack = () => {
   const { am_id, ticket_id } = useParams();
@@ -19,7 +68,7 @@ const AccountManagerTicketTrack = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTicketId, setCurrentTicketId] = useState(null);
   const [remarks, setRemarks] = useState("");
-  const [sending, setSending] = useState(false); // New state for sending spinner
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -54,108 +103,163 @@ const AccountManagerTicketTrack = () => {
       (ticket) => ticket.ticket_id === currentTicketId
     ).consultant_email;
 
-    setSending(true); // Start spinner
+    setSending(true);
 
     try {
-      const response = await axios.post("http://localhost:5002/api/tickets/submitChanges", {
-        am_id: decodedId,
-        ticket_id: currentTicketId,
-        consultant_email: consultantEmail,
-        remarks,
-      });
+      const response = await axios.post(
+        "http://localhost:5002/api/tickets/submitChanges",
+        {
+          am_id: decodedId,
+          ticket_id: currentTicketId,
+          consultant_email: consultantEmail,
+          remarks,
+        }
+      );
 
-      setSending(false); // Stop spinner
+      setSending(false);
 
-      if (response.data.message === "Changes submitted and email sent successfully") {
+      if (
+        response.data.message ===
+        "Changes submitted and email sent successfully"
+      ) {
         alert("Remarks sent successfully.");
         handleCloseModal();
       } else {
         alert("Error: " + response.data.message);
       }
     } catch (error) {
-      setSending(false); // Stop spinner
+      setSending(false);
       console.error("Error submitting changes:", error);
       alert("Error submitting remarks. Please try again later.");
     }
   };
 
   const handleApprove = async (ticketId) => {
-    // Handle the approve action here
-    alert(`Ticket ${ticketId} approved.`);
+    const ticket = tickets.find((t) => t.ticket_id === ticketId);
+    const consultantEmail = ticket.consultant_email;
+    const clientEmail = ticket.client_email; // Assuming client_email is part of the ticket data
+
+    console.log(clientEmail, consultantEmail);
+
+    // try {
+    //   const response = await axios.post("http://localhost:5002/api/tickets/approve", {
+    //     am_id: decodedId,
+    //     ticket_id: ticketId,
+    //     consultant_email: consultantEmail,
+    //     client_email: clientEmail,
+    //   });
+
+    //   if (response.data.message === "Emails sent successfully") {
+    //     alert("Approval emails sent to consultant and client.");
+    //   } else {
+    //     alert("Error: " + response.data.message);
+    //   }
+    // } catch (error) {
+    //   console.error("Error sending approval emails:", error);
+    //   alert("Error sending emails. Please try again later.");
+    // }
+  };
+
+  const formatToIST = (utcDateString) => {
+    const date = new Date(utcDateString);
+    const istOffset = 5.5 * 60; // IST offset in minutes (5 hours 30 minutes)
+    const istDate = new Date(date.getTime() + istOffset * 60 * 1000);
+    return istDate.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
   };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Tickets Assigned to You</h1>
-      {loading && (
-        <div className={styles.loading}>
-          <FontAwesomeIcon
-            icon={faSpinner}
-            spin
-            className={styles.loadingIcon}
-          />
-          Loading...
-        </div>
-      )}
-      <ul className={styles.list}>
-        {tickets.map((ticket) => (
-          <li key={ticket.ticket_id} className={styles.card}>
-            <h2 className={styles.cardTitle}>{ticket.subject}</h2>
-            <p className={styles.cardText}>{ticket.ticket_body}</p>
-            {ticket.corrected_file && (
-              <a
-                href={ticket.corrected_file}
-                download
-                className={styles.correctedFileLink}
-              >
-                Download Submission File
-              </a>
-            )}
-            <p>Consultant Email: {ticket.consultant_email}</p>
-            <button
-              onClick={() => handleOpenModal(ticket.ticket_id)}
-              className={styles.changeButton}
-            >
-              Changes
-            </button>
-            <button
-              onClick={() => handleApprove(ticket.ticket_id)}
-              className={styles.approveButton}
-            >
-              Approve
-            </button>
-          </li>
-        ))}
-      </ul>
+    <ThemeProvider theme={theme}>
+      <StyledContainer>
+        <Typography variant="h4" gutterBottom>
+          Submission
+        </Typography>
+        {loading ? (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100vh"
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Box>
+            {tickets.map((ticket) => (
+              <StyledCard key={ticket.ticket_id}>
+                <CardContent>
+                  <Typography variant="h5">{ticket.subject}</Typography>
+                  <Typography variant="body2">{ticket.ticket_body}</Typography>
+                  {ticket.corrected_file && (
+                    <Button
+                      href={ticket.corrected_file}
+                      download
+                      startIcon={<DownloadIcon />}
+                    >
+                      Download Submission File
+                    </Button>
+                  )}
+                  <Typography variant="body2">
+                    Consultant Email: {ticket.consultant_email}
+                  </Typography>
+                  <Typography variant="body2">
+                    created_at:{" "}
+                    {ticket.created_at
+                      ? formatToIST(ticket.created_at)
+                      : "N/A"}
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <StyledButton
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleOpenModal(ticket.ticket_id)}
+                  >
+                    Changes
+                  </StyledButton>
+                  <StyledButton
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleApprove(ticket.ticket_id)}
+                  >
+                    Approve
+                  </StyledButton>
+                </CardActions>
+              </StyledCard>
+            ))}
+          </Box>
+        )}
 
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={handleCloseModal}
-        className={styles.modal}
-        overlayClassName={styles.overlay}
-      >
-        <h2>Submit Changes</h2>
-        <textarea
-          value={remarks}
-          onChange={(e) => setRemarks(e.target.value)}
-          className={styles.textarea}
-        />
-        <button onClick={handleSendChanges} className={styles.sendButton} disabled={sending}>
-          {sending ? (
-            <FontAwesomeIcon
-              icon={faSpinner}
-              spin
-              className={styles.loadingIcon}
+        <Modal open={isModalOpen} onClose={handleCloseModal}>
+          <StyledModalBox>
+            <Typography variant="h6">Submit Changes</Typography>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              variant="outlined"
+              margin="normal"
+              label="Remarks"
             />
-          ) : (
-            "Send"
-          )}
-        </button>
-        <button onClick={handleCloseModal} className={styles.closeButton}>
-          Close
-        </button>
-      </Modal>
-    </div>
+            <Box display="flex" justifyContent="flex-end" mt={2}>
+              <StyledButton
+                variant="contained"
+                color="primary"
+                onClick={handleSendChanges}
+                disabled={sending}
+                startIcon={sending && <FontAwesomeIcon icon={faSpinner} spin />}
+              >
+                {sending ? "Sending..." : "Send"}
+              </StyledButton>
+              <StyledButton variant="outlined" onClick={handleCloseModal}>
+                Close
+              </StyledButton>
+            </Box>
+          </StyledModalBox>
+        </Modal>
+      </StyledContainer>
+    </ThemeProvider>
   );
 };
 

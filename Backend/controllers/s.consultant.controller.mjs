@@ -63,8 +63,7 @@ export const getTicketsForCompanyAndConsultant = (req, res) => {
 };
 
 export const submitTicketCorrection = (req, res) => {
-  const { ticket_id, subject, ticket_body, screenshot, am_id, emp_id } =
-    req.body;
+  const { ticket_id, subject, ticket_body, screenshot, am_id, emp_id } = req.body;
   let corrected_file = req.file ? req.file.path : null;
 
   // Validate the corrected file is a PDF
@@ -139,16 +138,16 @@ export const submitTicketCorrection = (req, res) => {
             to: accountManagerEmail,
             subject: "Ticket Correction Submitted",
             html: `
-            <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-              <h2 style="color: #333;">Ticket Correction Submitted</h2>
-              <p>A correction has been submitted for the following ticket:</p>
-              <ul style="list-style-type: none; padding: 0;">
-                <li><strong>Ticket ID:</strong> ${ticket_id}</li>
-                <li><strong>Subject:</strong> ${subject}</li>
-                <li><strong>Submitted At:</strong> ${new Date().toLocaleString()}</li>
-              </ul>
-            </div>
-          `,
+              <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                <h2 style="color: #333;">Ticket Correction Submitted</h2>
+                <p>A correction has been submitted for the following ticket:</p>
+                <ul style="list-style-type: none; padding: 0;">
+                  <li><strong>Ticket ID:</strong> ${ticket_id}</li>
+                  <li><strong>Subject:</strong> ${subject}</li>
+                  <li><strong>Submitted At:</strong> ${new Date().toLocaleString()}</li>
+                </ul>
+              </div>
+            `,
             attachments: corrected_file
               ? [
                   {
@@ -166,6 +165,42 @@ export const submitTicketCorrection = (req, res) => {
               console.log(
                 `Correction email sent to account manager for ticket ${ticket_id}`
               );
+
+              // Log actions
+              const logActions = [
+                {
+                  type: 'Ticket Correction Submitted',
+                  details: `Correction submitted for ticket ${ticket_id} by consultant ${emp_id}`,
+                  emp_id: emp_id,
+                  client_id: null,
+                },
+                {
+                  type: 'Email Sent to Account Manager',
+                  details: `Email sent to account manager ${accountManagerEmail} about correction for ticket ${ticket_id}`,
+                  emp_id: emp_id,
+                  client_id: null,
+                }
+              ];
+
+              const logQuery = "INSERT INTO action_logs (action_type, action_details, ticket_id, emp_id, client_id) VALUES (?, ?, ?, ?, ?)";
+
+              logActions.forEach((log) => {
+                db.query(logQuery, [log.type, log.details, ticket_id, log.emp_id, log.client_id], (logErr) => {
+                  if (logErr) {
+                    console.error("Error logging action:", logErr);
+                  }
+                });
+              });
+
+              // Update ticket_status_id in ticket_raising table
+              const updateStatusQuery = "UPDATE ticket_raising SET ticket_status_id = 3 WHERE ticket_id = ?";
+              db.query(updateStatusQuery, [ticket_id], (updateErr) => {
+                if (updateErr) {
+                  console.error("Error updating ticket status:", updateErr);
+                  return res.status(500).json({ error: "Internal Server Error" });
+                }
+                console.log(`Ticket status updated to 3 for ticket ${ticket_id}`);
+              });
             }
           });
         }

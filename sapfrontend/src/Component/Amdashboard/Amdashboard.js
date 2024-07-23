@@ -14,7 +14,10 @@ export function Amdashboard() {
           <div className="col-lg-2">
             <Amsidebar />
           </div>
-          <div className="col-lg-10">
+          <div className="col-lg-1">
+
+          </div>
+          <div className="col-lg-9">
             <TicketSummary />
           </div>
         </div>
@@ -31,7 +34,10 @@ export function AmdTicketCount() {
           <div className="col-lg-2">
             <Amsidebar />
           </div>
-          <div className="col-lg-10">
+          <div className="col-lg-1">
+
+          </div>
+          <div className="col-lg-9">
             <TicketsCount />
           </div>
         </div>
@@ -48,7 +54,10 @@ export function AmdTicketShow() {
           <div className="col-lg-2">
             <Amsidebar />
           </div>
-          <div className="col-lg-10">
+          <div className="col-lg-1">
+
+          </div>
+          <div className="col-lg-9">
             <TicketShow />
           </div>
         </div>
@@ -65,7 +74,10 @@ export function AmdTicketTrack() {
           <div className="col-lg-2">
             <Amsidebar />
           </div>
-          <div className="col-lg-10">
+          <div className="col-lg-1">
+
+          </div>
+          <div className="col-lg-9">
             <AccountManagerTicketTrack />
           </div>
         </div>
