@@ -36,38 +36,38 @@ function TicketSummary() {
   return (
     <div className="container-fluid backgroundshade">
       <h2 className="text-center my-4">Ticket Summary</h2>
-      <div className="row pt-4 d-flex flex-column align-items-center justify-content-center">
-        <div className="col-sm-12 col-md-6 col-lg-2">
+      <div className="row pt-4 d-flex  align-items-center justify-content-center">
+        <div className="col-sm-12 col-md-6 ">
           <div className="card text-center crdsummary text-light m-1 card-equal-height bg-primary card-equal-height ">
             <h4>Open </h4>
             <h4>0</h4>
           </div>
         </div>
-        <div className="col-sm-12 col-md-6 col-lg-2">
+        <div className="col-sm-12 col-md-6 ">
           <div className="card text-center crdsummary text-light m-1 card-equal-height bg-primary card-equal-height ">
             <h4>InProgress</h4>
             <h4>0</h4>
           </div>
         </div>
-        <div className="col-sm-12 col-md-6 col-lg-2">
+        <div className="col-sm-12 col-md-6 ">
           <div className="card text-center text-light m-1 crdsummary card-equal-height bg-primary card-equal-height ">
             <h4>Answered</h4>
             <h4>0</h4>
           </div>
         </div>
-        <div className="col-sm-12 col-md-6 col-lg-2">
+        <div className="col-sm-12 col-md-6 ">
           <div className="card text-center text-light m-1 crdsummary card-equal-height bg-primary card-equal-height ">
             <h4>On Hold</h4>
             <h4>0</h4>
           </div>
         </div>
-        <div className="col-sm-12 col-md-6 col-lg-2">
+        <div className="col-sm-12 col-md-6 ">
           <div className="card text-center text-light m-1 crdsummary card-equal-height bg-primary card-equal-height ">
             <h4>Closed</h4>
             <h4>0</h4>
           </div>
         </div>
-        <div className="col-sm-12 col-md-6 col-lg-2">
+        <div className="col-sm-12 col-md-6 ">
           <div className="card text-center cardforstatus text-light m-1 crdsummary card-equal-height bg-primary">
             <h4>Total</h4>
             <h4>{ticket_count}</h4>

@@ -110,16 +110,17 @@ const Sidebarnew = () => {
 
             <Nav.Link
               as={Link}
-              to={"/ticketstatus"}
+              to={`/client/ticketstatus/${id}`}
               className="text-light text-decoration-none mx-3 my-2"
             >
               <FontAwesomeIcon icon={faTicket} className="me-2" />
               TicketStatus
             </Nav.Link>
-            <NavLink onClick={handleLogout} to={`/`}>
-              Logout
+            <Nav.Link as={Link} onClick={handleLogout} to={`/`}  className="text-light text-decoration-none mx-3 my-2">
+              
               <FontAwesomeIcon icon={faUser} className="me-2" />
-            </NavLink>
+              Logout
+            </Nav.Link>
           </Nav>
         </div>
       )}

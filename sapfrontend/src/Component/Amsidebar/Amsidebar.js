@@ -119,13 +119,14 @@ const Amsidebar = () => {
               <FontAwesomeIcon icon={faTicket} className="me-2" />
               Tickets
             </Nav.Link>
-            <NavLink
+
+            <Nav.Link as={Link}
               onClick={handleLogout}
               to={`/`}
               className="text-light text-decoration-none mx-3 my-3"
             >
               <FontAwesomeIcon icon={faUser} className="me-2" /> Logout
-            </NavLink>
+            </Nav.Link>
           </Nav>
         </div>
       )}
