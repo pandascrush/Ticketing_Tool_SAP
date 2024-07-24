@@ -72,7 +72,7 @@ function App() {
 
           {/*Client Routes*/}
           <Route
-            path="/client/:id/:com/:cshort"
+            path="/client/raiseticket/:id/"
             Component={ClientTicketBooking}
           />
           <Route

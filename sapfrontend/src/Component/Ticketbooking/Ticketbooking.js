@@ -5,13 +5,13 @@ import ReactLoading from "react-loading";
 import styles from "./Ticketbooking.module.css";
 
 const TicketForm = () => {
-  const { id, com, cshort } = useParams();
+  const { id } = useParams();
   const client_id = atob(id);
-  const company_name = atob(com);
-  const company_short_name = atob(cshort);
 
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [company_name, setCompany_name] = useState();
+  const [company_short_name, setCompany_short_name] = useState();
 
   const initialFormData = {
     subject: "",
@@ -35,6 +35,15 @@ const TicketForm = () => {
       })
       .catch((e) => {
         alert("Server is down...");
+      });
+
+    axios
+      .get(`http://localhost:5002/api/client/getCompany/${client_id}`)
+      .then((res) => {
+        // console.log(res.data[0].company);
+        const data = res.data[0];
+        setCompany_name(data.company);
+        setCompany_short_name(data.company_short_name);
       });
   }, [client_id]);
 

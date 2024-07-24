@@ -5,9 +5,9 @@ import "./Login.css";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [identifier, setIdentifier] = useState()
-  const [password, setPassword] = useState()
-  const nav = useNavigate()
+  const [identifier, setIdentifier] = useState();
+  const [password, setPassword] = useState();
+  const nav = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,25 +19,23 @@ function Login() {
         console.log(res.data);
         if (res.data.userType === "Client") {
           const id = res.data.client_id;
-          const comapny = res.data.company;
-          const c_short = res.data.company_short_name;
-          console.log(id, comapny, c_short);
-          nav(`/client/${btoa(id)}/${btoa(comapny)}/${btoa(c_short)}`);
+          nav(`/client/raiseticket/${btoa(id)}/`);
         } else if (res.data.userType === "Internal") {
           if (res.data.designation_id === 2) {
             const id = res.data.am_id;
             nav(`/manager/${btoa(id)}`);
           } else if (res.data.designation_id === 1) {
             nav(`/admin/client`);
-          }
-          else if(res.data.designation_id === 3){
-            const id = res.data.emp_id
-            nav(`/seniorcons/${btoa(id)}`)
+          } else if (res.data.designation_id === 3) {
+            const id = res.data.emp_id;
+            nav(`/seniorcons/${btoa(id)}`);
           }
         } else {
           nav("/");
         }
-      });
+      }).catch(err=>{
+        alert("server down")
+      })
   };
 
   return (

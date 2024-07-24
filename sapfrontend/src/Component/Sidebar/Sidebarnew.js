@@ -10,10 +10,7 @@ const Sidebarnew = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth <= 991); // Check if screen is small on initial load
 
-  const { id, com, cshort } = useParams();
-  const decodedId = atob(id);
-  const decodedCom = atob(com);
-  const decodedShort = atob(cshort);
+  const { id } = useParams();
 
   const navigate = useNavigate();
 
@@ -69,7 +66,7 @@ const Sidebarnew = () => {
               <Nav.Link as={Link} to={`/`}>
                 Logout
               </Nav.Link>
-              <Nav.Link as={Link} to={`/client/${id}/${com}/${cshort}`}>
+              <Nav.Link as={Link} to={`/client/raiseticket/${id}`}>
                 Ticket Booking
               </Nav.Link>
               <Nav.Link as={Link} to={`/client/ticketstatus/${id}`}>
@@ -101,7 +98,7 @@ const Sidebarnew = () => {
             </Nav.Link>
             <Nav.Link
               as={Link}
-              to={`/client/${id}/${com}/${cshort}`}
+              to={`/client/raiseticket/${id}`}
               className="text-light text-decoration-none mx-3 my-2"
             >
               <FontAwesomeIcon icon={faTicket} className="me-2 " />
