@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAddressCard,
+  faDashboard,
   faHotel,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
@@ -64,10 +65,10 @@ const AdminSidebar = () => {
           >
             <Nav className="ml-auto">
               <NavLink
-                to={"/"}
+                to={"/admin/dash"}
                 className="text-light text-decoration-none my-2"
               >
-                Home
+                Dashboard
               </NavLink>
               <NavLink
                 to={"/admin/client"}
@@ -92,6 +93,13 @@ const AdminSidebar = () => {
             <h4 className="text-light text-decoration-none mx-3 my-3">
               Welcome
             </h4>
+            <NavLink
+              to={"/admin/dash"}
+              className="text-light text-decoration-none mx-3 my-3"
+            >
+              <FontAwesomeIcon icon={faDashboard} className="me-2" />  Dashboard
+              
+            </NavLink>
             <NavLink
               to={"/admin/client"}
               className="text-light text-decoration-none mx-3 my-3"

@@ -25,7 +25,7 @@ function Login() {
             const id = res.data.am_id;
             nav(`/manager/${btoa(id)}`);
           } else if (res.data.designation_id === 1) {
-            nav(`/admin/client`);
+            nav(`/admin/dash`);
           } else if (res.data.designation_id === 3) {
             const id = res.data.emp_id;
             nav(`/seniorcons/${btoa(id)}`);

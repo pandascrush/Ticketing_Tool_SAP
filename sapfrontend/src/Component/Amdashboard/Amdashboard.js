@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import Amsidebar from "../Amsidebar/Amsidebar";
 import TicketSummary from "../Summary/Summary";
-import ClientRegister from "../Clientregistration/Clientregistration";
 import TicketsCount from "../Showtickets/Showtickets";
 import TicketShow from "../TicketShow/TicketShow";
 import AccountManagerTicketTrack from "../AmTicketTrack/AccountManagerTicketTrack";
@@ -25,6 +24,7 @@ export function Amdashboard() {
     </>
   );
 }
+
 
 export function AmdTicketCount() {
   return (

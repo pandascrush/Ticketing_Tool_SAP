@@ -61,3 +61,183 @@ export const getAvailableServices = (req, res) => {
     res.json(results);
   });
 };
+
+// export const getTicketsCountAndStatus = (req, res) => {
+//   const sql = `SELECT ticket_status_id, COUNT(*) AS ticket_count
+// FROM ticket_raising
+// GROUP BY ticket_status_id;
+// `;
+
+//   db.query(sql, (err, result) => {
+//     if (err) {
+//       res.json({ message: err });
+//     } else {
+//       res.json(result);
+//     }
+//   });
+// };
+
+export const getAllTickets = (req, res) => {
+  const query = `
+   SELECT 
+    tr.ticket_id,
+    tr.ticket_body,
+    tr.subject,
+    tr.company_name,
+    consultant.email AS consultant_mail,
+    account_manager.email AS account_manager_mail,
+    ts.status_name
+FROM 
+    ticket_raising tr
+JOIN 
+    internal consultant ON tr.consultant_emp_id = consultant.emp_id
+JOIN 
+    internal account_manager ON tr.am_id = account_manager.am_id
+JOIN 
+    ticket_status ts ON tr.ticket_status_id = ts.ticket_status_id;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching tickets:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    res.json(results);
+  });
+};
+
+export const getClientCompanyCount = (req, res) => {
+  const query = 'SELECT COUNT(DISTINCT company) AS company_count FROM client';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching company count:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    const companyCount = results[0].company_count;
+    res.json({ companyCount });
+  });
+};
+
+export const getClientDetails = (req, res) => {
+  const query = `
+    SELECT 
+      company,
+      email,
+      address,
+      gst_no,
+      company_short_name,
+      phone,
+      timestamp
+    FROM 
+      client;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching client details:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    res.json(results);
+  });
+};
+
+export const getInternalDetails = (req, res) => {
+  const query = `
+ SELECT 
+    i.name AS Employee_name,
+    i.email,
+    i.mobile,
+    i.emp_id,
+    i.am_id,
+    i.head_id,
+    COUNT(tr_consultant.ticket_id) AS consultant_ticket_count,
+    COUNT(tr_account_manager.ticket_id) AS account_manager_ticket_count
+FROM 
+    internal i
+LEFT JOIN 
+    ticket_raising tr_consultant ON i.emp_id = tr_consultant.consultant_emp_id
+LEFT JOIN 
+    ticket_raising tr_account_manager ON i.am_id = tr_account_manager.am_id
+GROUP BY 
+    i.emp_id, i.name, i.email, i.mobile, i.am_id, i.head_id;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching internal details:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    res.json(results);
+  });
+};
+
+export const getDomainFilteredTickets = (req, res) => {
+  const query = `
+   SELECT 
+  am_id,
+  COUNT(*) AS ticket_count,
+  (SELECT COUNT(*) FROM ticket_raising) AS total_no_tickets
+FROM 
+  ticket_raising
+GROUP BY 
+  am_id;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Error executing query");
+      return;
+    }
+    res.json(results);
+  });
+};
+
+export const getAmIdBasedTicketFetch = (req, res) => {
+  const { am_id } = req.params;
+
+  // Base URL for accessing screenshots
+  const baseUrl = "http://localhost:5002";
+
+  const query = `
+    SELECT 
+        tr.ticket_id,
+        tr.ticket_body,
+        tr.company_name,
+        e1.email AS consultant_email,
+        e2.email AS account_manager_email,
+        ts.status_name,
+        CONCAT('${baseUrl}', tr.screenshot) AS attachment
+    FROM
+        ticket_raising tr
+    LEFT JOIN
+        internal e1 ON tr.consultant_emp_id = e1.emp_id
+    JOIN
+        internal e2 ON tr.am_id = e2.am_id
+    JOIN
+        ticket_status ts ON tr.ticket_status_id = ts.ticket_status_id
+    WHERE
+        tr.am_id = ?;
+  `;
+
+  db.query(query, [am_id], (error, results) => {
+    if (error) {
+      console.error("Error fetching ticket details:", error);
+      return res.status(500).json({ message: "Internal server error." });
+    }
+
+    if (results.length > 0) {
+      res.json(results);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No ticket details found for the given AM ID." });
+    }
+  });
+};
+

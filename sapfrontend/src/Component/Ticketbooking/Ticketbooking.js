@@ -46,9 +46,10 @@ const TicketForm = () => {
       try {
         const res = await axios.get(
           `http://localhost:5002/api/client/getCompany/${client_id}
-        `);
-        // console.log(res.data.result[0])
-        const data = res.data.result[0];
+        `
+        );
+        console.log(res.data[0]);
+        const data = res.data[0];
         setCompany_name(data.company);
         setCompany_short_name(data.company_short_name);
       } catch (e) {
@@ -96,11 +97,10 @@ const TicketForm = () => {
       // console.log("Ticket created successfully:", response.data);
 
       if (
-        response.data.message ===
-        "Ticket created successfully and emails sent."
+        response.data.message === "Ticket created successfully and emails sent."
       ) {
         alert("Ticket Created Successfully. Check your mail");
-        window.location.reload()
+        window.location.reload();
       } else if (
         response.data.message ===
         "Ticket created, but failed to send email to account manager."
@@ -111,12 +111,18 @@ const TicketForm = () => {
         "Ticket created, but failed to send email to client."
       ) {
         alert("Ticket created, but failed to send email to client.");
-      }
-      else if (response.data.message === "No email information found.") {
-        alert("No email information found.")
-      }
-      else if (response.data.message === "Invalid client_id. The client does not exist.") {
-        alert('Invalid client_id. The client does not exist.')
+      } else if (response.data.message === "No email information found.") {
+        alert("No email information found.");
+      } else if (
+        response.data.message ===
+        "Invalid client_id. The client does not exist."
+      ) {
+        alert("Invalid client_id. The client does not exist.");
+      } else if (
+        response.data.message ===
+        "Invalid subdivision_id. The subdivision does not exist."
+      ) {
+        alert("Invalid subdivision_id. The subdivision does not exist.");
       }
 
       setFormData(initialFormData); // Reset form data
