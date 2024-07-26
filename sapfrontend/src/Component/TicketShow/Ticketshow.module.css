@@ -85,3 +85,16 @@
     transform: rotate(360deg);
   }
 }
+
+.pdfLink {
+  color: #d9534f;
+  text-decoration: none;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.pdfIcon {
+  margin-right: 5px;
+  font-size: 1.2em;
+}

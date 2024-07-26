@@ -19,6 +19,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment-timezone";
+import styles from "./TicketsList.module.css"; // Adjust the import path based on your actual CSS module path
 
 const TicketsList = () => {
   const { id, company } = useParams();
@@ -29,15 +30,19 @@ const TicketsList = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileError, setFileError] = useState("");
   const [ticketCounts, setTicketCounts] = useState({});
+  const [startedTickets, setStartedTickets] = useState({});
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5002/api/seniorcons/tickets/${emp_id}/${company_name}`)
+      .get(
+        `http://localhost:5002/api/seniorcons/tickets/${emp_id}/${company_name}`
+      )
       .then((response) => {
         setAmid(response.data[0].am_id);
         setTickets(response.data);
         response.data.forEach((ticket) => {
           fetchTicketSubmissionCount(ticket.ticket_id);
+          fetchTicketStartedStatus(ticket.ticket_id); // Fetch if ticket is started
         });
       })
       .catch((error) => {
@@ -47,7 +52,9 @@ const TicketsList = () => {
 
   const fetchTicketSubmissionCount = (ticket_id) => {
     axios
-      .get(`http://localhost:5002/api/seniorcons/ticketSubmissionCount/${ticket_id}`)
+      .get(
+        `http://localhost:5002/api/seniorcons/ticketSubmissionCount/${ticket_id}`
+      )
       .then((response) => {
         setTicketCounts((prevCounts) => ({
           ...prevCounts,
@@ -56,6 +63,22 @@ const TicketsList = () => {
       })
       .catch((error) => {
         console.error("Error fetching ticket submission count:", error);
+      });
+  };
+
+  const fetchTicketStartedStatus = (ticket_id) => {
+    axios
+      .get(
+        `http://localhost:5002/api/seniorcons/ticketStartedStatus/${ticket_id}`
+      )
+      .then((response) => {
+        setStartedTickets((prevStatuses) => ({
+          ...prevStatuses,
+          [ticket_id]: response.data.started,
+        }));
+      })
+      .catch((error) => {
+        console.error("Error fetching ticket started status:", error);
       });
   };
 
@@ -100,6 +123,86 @@ const TicketsList = () => {
       });
   };
 
+  const handleStartWork = (ticket_id) => {
+    axios
+      .post(`http://localhost:5002/api/seniorcons/startWork`, { ticket_id })
+      .then((response) => {
+        alert("Work started for the ticket.");
+        setStartedTickets((prevStatuses) => ({
+          ...prevStatuses,
+          [ticket_id]: true,
+        }));
+      })
+      .catch((error) => {
+        console.error("Error marking ticket as started:", error);
+      });
+  };
+
+  const callApiWithValue = (value, ticket_id) => {
+    axios
+      .post("http://localhost:5002/api/tickets/statusupdate", {
+        value,
+        ticket_id,
+      })
+      .then((response) => {
+        if (response.data.message === "updated") {
+          alert("Work Started");
+          window.location.reload()
+        }
+      })
+      .catch((error) => {
+        console.error("Error making API call with value:", error);
+      });
+  };
+
+  const handleAction = (ticket_id) => {
+    console.log(ticket_id);
+    callApiWithValue(3, ticket_id); // Call the function with the value 3
+  };
+
+  const renderAttachment = (screenshot, timestamp) => {
+    if (screenshot) {
+      const fileExtension = screenshot.split('.').pop().toLowerCase();
+      const isImage = ['jpg', 'jpeg', 'png'].includes(fileExtension);
+
+      if (isImage) {
+        return (
+          <div className={styles.screenshotContainer}>
+            <label>
+              <b>Screenshot:</b>
+            </label>
+            <img
+              src={screenshot}
+              alt="Screenshot"
+              className={styles.screenshot}
+            />
+            <br/>
+            <Typography variant="caption" className={styles.timestamp}>
+              Created At: {moment(timestamp).format("DD-MM-YYYY hh:mm:ss A")}
+            </Typography>
+          </div>
+        );
+      } else if (fileExtension === 'pdf') {
+        return (
+          <div className={styles.screenshotContainer}>
+            <label>
+              <b>Attachment: &nbsp; </b>
+            </label>
+            <a href={screenshot} download className={styles.pdfLink}>
+                <FontAwesomeIcon icon={faFilePdf} className={styles.pdfIcon} />
+              Download PDF
+            </a>
+            <br/>
+            <Typography variant="caption" className={styles.timestamp}>
+              Created At: {moment(timestamp).format("DD-MM-YYYY hh:mm:ss A")}
+            </Typography>
+          </div>
+        );
+      }
+    }
+    return null;
+  };
+
   return (
     <Container>
       <Typography variant="h4" component="h1" gutterBottom>
@@ -118,10 +221,18 @@ const TicketsList = () => {
                     <Typography variant="body2" color="textSecondary">
                       {ticket.status_name}
                     </Typography>
-                    {ticket.status_name === "In Progress" || ticket.status_name === "Answered" && (
-                      <Link to={`/seniorcons/submissionChanges/${btoa(amid)}/${btoa(ticket.ticket_id)}`}>
+                    {(ticket.status_name === "In Progress" ||
+                      ticket.status_name === "Answered") && (
+                      <Link
+                        to={`/seniorcons/submissionChanges/${btoa(amid)}/${btoa(
+                          ticket.ticket_id
+                        )}`}
+                      >
                         <IconButton aria-label="notifications">
-                          <Badge badgeContent={ticketCounts[ticket.ticket_id]} color="primary">
+                          <Badge
+                            badgeContent={ticketCounts[ticket.ticket_id]}
+                            color="primary"
+                          >
                             <FontAwesomeIcon icon={faBell} />
                           </Badge>
                         </IconButton>
@@ -132,20 +243,15 @@ const TicketsList = () => {
                 <Typography variant="body2" component="p">
                   {ticket.ticket_body}
                 </Typography>
-                <Typography variant="caption" color="textSecondary">
-                  Created At: {moment(ticket.timestamp).tz("Asia/Kolkata").format("DD-MM-YYYY hh:mm:ss A")}
-                </Typography>
-                {ticket.screenshot && (
-                  <Box mt={2}>
-                    <Typography variant="body2" component="p">
-                      <b>Screenshot:</b>
-                    </Typography>
-                    <img src={ticket.screenshot} alt="Screenshot" style={{ maxWidth: "100%" }} />
-                  </Box>
-                )}
+                {renderAttachment(ticket.screenshot, ticket.timestamp)}
               </CardContent>
               <CardActions>
-                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  width="100%"
+                >
                   <Input
                     type="file"
                     accept="application/pdf"
@@ -175,6 +281,14 @@ const TicketsList = () => {
                     disabled={!selectedFile}
                   >
                     Submit Correction
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    onClick={() => handleAction(ticket.ticket_id)}
+                    style={{ marginTop: "8px" }}
+                  >
+                    Start Work
                   </Button>
                 </Box>
               </CardActions>

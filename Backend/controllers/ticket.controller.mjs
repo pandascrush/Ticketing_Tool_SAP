@@ -664,3 +664,60 @@ Thank you.`,
   );
 };
 
+export const getClientTicketStatus = (req, res) => {
+  const { id } = req.params;
+  const baseUrl = 'http://localhost:5002'; // Replace with your actual base URL
+
+  // SQL query to fetch ticket details for a specific client_id
+  const query = `
+    SELECT 
+      tr.ticket_id, 
+      tr.ticket_body, 
+      tr.subject,
+      tr.ticket_status_id,
+      CONCAT('${baseUrl}', tr.screenshot) AS screenshot, 
+      ts.status_name,
+      tr.service_id,
+      s.service_name
+    FROM 
+      ticket_raising tr
+    JOIN 
+      services s ON tr.service_id = s.service_id
+    JOIN 
+      ticket_status ts ON tr.ticket_status_id = ts.ticket_status_id
+    WHERE 
+      tr.client_id = ?;
+  `;
+
+  db.query(query, [id], (err, results) => {
+    if (err) {
+      console.error("Error fetching tickets:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    if (results.length === 0) {
+      return res.json({ message: "No tickets found for this client." });
+    }
+
+    // Return the fetched ticket details as a JSON response
+    res.json(results);
+  });
+};
+
+
+export const consultantUpdateTheTicketStatus = async (req, res) => {
+  const { value, ticket_id } = req.body;
+
+  const sql = `UPDATE ticket_raising
+SET ticket_status_id = ?
+WHERE ticket_id = ?
+`;
+
+  db.query(sql, [value, ticket_id], (err, result) => {
+    if (err) {
+      res.json({ error: err });
+    } else {
+      res.json({ message: "updated" });
+    }
+  });
+};

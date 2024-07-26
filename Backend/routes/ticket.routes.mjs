@@ -2,9 +2,11 @@
 import { Router } from "express";
 import {
   assignTicket,
+  consultantUpdateTheTicketStatus,
   createTicket,
   getAccountManagerTicketDetails,
   getAccountManagerTrackTickets,
+  getClientTicketStatus,
   getCompanyTicketCounts,
   submitTicketChanges,
 } from "../controllers/ticket.controller.mjs";
@@ -34,4 +36,6 @@ router.get("/track/:am_id/:ticket_id", getAccountManagerTrackTickets);
 
 // Account manager send if any changes need in the submission
 router.post('/submitChanges',submitTicketChanges)
+router.get("/status/:id", getClientTicketStatus);
+router.post('/statusupdate',consultantUpdateTheTicketStatus)
 export default router;

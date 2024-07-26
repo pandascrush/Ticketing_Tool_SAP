@@ -29,6 +29,7 @@ export const getCompaniesWithTicketCounts = (req, res) => {
 
 export const getTicketsForCompanyAndConsultant = (req, res) => {
   const { emp_id, company_name } = req.params;
+  const baseurl = 'http://localhost:5002'
 
   const query = `
         SELECT 
@@ -40,7 +41,7 @@ export const getTicketsForCompanyAndConsultant = (req, res) => {
           ts.status_name,
           tr.timestamp,
           tr.am_id,
-          CONCAT('http://localhost:5002', tr.screenshot) AS screenshot
+          CONCAT('${baseurl}', tr.screenshot) AS screenshot
         FROM 
           ticket_raising tr
         JOIN 

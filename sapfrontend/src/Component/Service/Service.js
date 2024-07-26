@@ -19,6 +19,7 @@ const Service = () => {
         const response = await axios.get(
           "http://localhost:5002/api/serve/services"
         );
+        console.log(response);
         setServices(response.data);
       } catch (error) {
         console.error("Error fetching services:", error);

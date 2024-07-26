@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import styles from "./Ticketshow.module.css"; // Import CSS module
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRoad } from "@fortawesome/free-solid-svg-icons"; // Import road icon
+import { faRoad, faFilePdf } from "@fortawesome/free-solid-svg-icons"; // Import road and PDF icons
 
 function TicketShow() {
   const { id, com } = useParams();
@@ -18,9 +18,9 @@ function TicketShow() {
 
   useEffect(() => {
     axios
-      .get(
-        `http://localhost:5002/api/tickets/getAMTicketDetail/${decodedId}/${company_name}`
-      )
+      .get(`
+        http://localhost:5002/api/tickets/getAMTicketDetail/${decodedId}/${company_name}
+      `)
       .then((res) => {
         setTickets(res.data); // Assuming res.data contains an array of tickets with client emails
       })
@@ -49,8 +49,8 @@ function TicketShow() {
       const selectedPriority = priority[ticket.ticket_id]; // Get the selected priority
 
       console.log(
-        `Assigning ticket ${ticket.ticket_id} to employee ${employeeName} ${consultantMail} ${clientMail} with priority ${selectedPriority}`
-      );
+        `Assigning ticket ${ticket.ticket_id} to employee ${employeeName} ${consultantMail} ${clientMail} with priority ${selectedPriority}
+      `);
 
       setLoading(true); // Set loading state when starting the assignment process
       console.log(priority);
@@ -62,7 +62,7 @@ function TicketShow() {
           ticketId: ticket.ticket_id,
           consultant_emp_id,
           priority: selectedPriority, // Pass the priority value to the API
-          am_id:decodedId
+          am_id: decodedId,
         })
         .then((res) => {
           console.log(res.data);
@@ -71,6 +71,7 @@ function TicketShow() {
             "Ticket assigned, emails sent, and status updated successfully."
           ) {
             alert("Ticket Assigned Successfully");
+            window.location.reload()
           } else if (res.data.message === "Error sending email to client.") {
             alert("Error sending email to client.");
           } else if (
@@ -104,6 +105,41 @@ function TicketShow() {
     }));
   };
 
+  const renderAttachment = (screenshot) => {
+    if (screenshot) {
+      const fileExtension = screenshot.split('.').pop().toLowerCase();
+      const isImage = ['jpg', 'jpeg', 'png'].includes(fileExtension);
+
+      if (isImage) {
+        return (
+          <div className={styles.screenshotContainer}>
+            <label>
+              <b>Screenshot:</b>
+            </label>
+            <img
+              src={screenshot}
+              alt="Screenshot"
+              className={styles.screenshot}
+            />
+          </div>
+        );
+      } else if (fileExtension === 'pdf') {
+        return (
+          <div className={styles.screenshotContainer}>
+            <label>
+              <b>Attachment:</b>
+            </label>
+            <a href={screenshot} download className={styles.pdfLink}>
+              <FontAwesomeIcon icon={faFilePdf} className={styles.pdfIcon} />
+              Download PDF
+            </a>
+          </div>
+        );
+      }
+    }
+    return null;
+  };
+
   return (
     <div className={styles.container}>
       {tickets.map((ticket) => (
@@ -128,18 +164,7 @@ function TicketShow() {
             <b>Ticket Body:</b>
           </label>
           <p>{ticket.ticket_body}</p>
-          {ticket.screenshot && (
-            <div className={styles.screenshotContainer}>
-              <label>
-                <b>Screenshot:</b>
-              </label>
-              <img
-                src={ticket.screenshot}
-                alt="Screenshot"
-                className={styles.screenshot}
-              />
-            </div>
-          )}
+          {renderAttachment(ticket.screenshot)}
           <div className="d-flex justify-content-between align-items-center">
             <select
               className={`form-select ${styles.select}`}
@@ -177,7 +202,7 @@ function TicketShow() {
                 loading
               }
             >
-              {loading ? <span className={styles.spinner}></span> : "Assign"}
+              {loading ? <span className={`styles.spinner`}></span> : "Assign"}
             </button>
           </div>
         </div>

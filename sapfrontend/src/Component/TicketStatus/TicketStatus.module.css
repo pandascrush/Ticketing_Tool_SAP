@@ -1,0 +1,46 @@
+/* TicketStatus.module.css */
+
+.ticketStatusContainer {
+  padding: 2rem;
+}
+
+.ticketCard {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  background-color: #ffffff;
+  min-width: 300px; /* Minimum width for the card */
+  margin-bottom: 1rem; /* Space below each card */
+}
+
+.ticketCard:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.ticketTitle {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.ticketBody {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Adjust number of lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.serviceName {
+  color: #6c757d;
+}
+
+.statusName {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.loadingText {
+  text-align: center;
+  font-size: 1.125rem;
+  color: #6c757d;
+}
