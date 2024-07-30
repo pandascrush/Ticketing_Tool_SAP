@@ -634,9 +634,9 @@ Thank you.`,
             (emailError, info) => {
               if (emailError) {
                 console.error("Error sending email:", emailError);
-                return res
-                  .status(500)
-                  .json({ message: "Changes submitted, but error sending email." });
+                return res.status(500).json({
+                  message: "Changes submitted, but error sending email.",
+                });
               }
 
               // Log action for sending email
@@ -666,7 +666,7 @@ Thank you.`,
 
 export const getClientTicketStatus = (req, res) => {
   const { id } = req.params;
-  const baseUrl = 'http://localhost:5002'; // Replace with your actual base URL
+  const baseUrl = "http://localhost:5002"; // Replace with your actual base URL
 
   // SQL query to fetch ticket details for a specific client_id
   const query = `
@@ -704,7 +704,6 @@ export const getClientTicketStatus = (req, res) => {
   });
 };
 
-
 export const consultantUpdateTheTicketStatus = async (req, res) => {
   const { value, ticket_id } = req.body;
 
@@ -720,4 +719,530 @@ WHERE ticket_id = ?
       res.json({ message: "updated" });
     }
   });
+};
+
+export const ApproveConsultantSubmission = (req, res) => {
+  const {
+    am_id,
+    ticket_id,
+    consultant_email,
+    client_email,
+    subject,
+    corrected_file,
+    ticket_body,
+  } = req.body;
+
+  // console.log(am_id, ticket_id, consultant_email, client_email, subject, corrected_file, ticket_body);
+
+  if (
+    !am_id ||
+    !ticket_id ||
+    !client_email ||
+    !subject ||
+    !corrected_file ||
+    !ticket_body
+  ) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  // Query to update ticket status in ticket_raising
+  const updateQuery = `
+    UPDATE ticket_raising
+    SET ticket_status_id = 3
+    WHERE ticket_id = ?
+  `;
+
+  db.query(updateQuery, [ticket_id], (updateErr) => {
+    if (updateErr) {
+      console.error("Error updating ticket status:", updateErr);
+      return res.status(500).json({ message: "Error updating ticket status" });
+    }
+
+    // Prepare HTML email body
+    const emailHtml = `
+      <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+          }
+          h1 {
+            color: #333;
+          }
+          p {
+            margin: 0 0 10px;
+          }
+          .footer {
+            font-size: 0.9em;
+            color: #777;
+            text-align: center;
+            margin-top: 20px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Ticket Approved</h1>
+          <p><strong>Ticket ID:</strong> ${ticket_id}</p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <p><strong>Ticket Body:</strong></p>
+          <p>${ticket_body}</p>
+          <p class="footer">Thank you for your attention.</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    let attachments = [];
+
+    // If corrected file URL exists, attach it to the email
+    if (corrected_file) {
+      const fileExtension = path.extname(corrected_file).toLowerCase();
+      let contentType;
+      let filename;
+
+      switch (fileExtension) {
+        case ".pdf":
+          contentType = "application/pdf";
+          filename = "submission.pdf";
+          break;
+        case ".jpg":
+        case ".jpeg":
+          contentType = "image/jpeg";
+          filename = "submission.jpg";
+          break;
+        case ".png":
+          contentType = "image/png";
+          filename = "submission.png";
+          break;
+        case ".doc":
+        case ".docx":
+          contentType = "application/msword";
+          filename = "submission.docx";
+          break;
+        case ".xlsx":
+          contentType =
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+          filename = "submission.xlsx";
+          break;
+        default:
+          contentType = "application/octet-stream";
+          filename = "submission" + fileExtension;
+          break;
+      }
+
+      // Attach the file
+      attachments.push({
+        filename: filename,
+        path: corrected_file,
+        contentType: contentType,
+      });
+    }
+
+    console.log(attachments, emailHtml);
+
+    // Send email to the client
+    const mailOptions = {
+      from: "sivaranji5670@gmail.com",
+      to: client_email,
+      subject: "Ticket Approved Submission",
+      html: emailHtml,
+      attachments: attachments,
+    };
+
+    transporter.sendMail(mailOptions, (emailError) => {
+      if (emailError) {
+        console.error("Error sending email:", emailError);
+        return res.status(500).json({ message: "Error sending email" });
+      }
+
+      res.status(200).json({ message: "Email sent successfully" });
+    });
+  });
+};
+
+// controllers/ticketController.mjs
+export const AccountMangerTicketRaising = async (req, res) => {
+  const {
+    subject,
+    ticket_body,
+    priority,
+    consultant_emp_id,
+    service_id,
+    client_id,
+    company_name,
+    email,
+  } = req.body;
+  const { am_id } = req.params;
+  const screenshot = req.file ? req.file.filename : null;
+  const screenshotPath = screenshot ? path.join("/uploads", screenshot) : null;
+
+  try {
+    const prefix = am_id.slice(0, -2);
+    const prefixPattern = `${prefix}%`;
+
+    const getMaxIdQuery =
+      "SELECT MAX(ticket_id) AS max_ticket_id FROM ticket_raising WHERE ticket_id LIKE ?;";
+
+    db.query(getMaxIdQuery, [prefixPattern], (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ success: false, message: "Error fetching max ticket_id." });
+      }
+
+      let nextIdNumber = 1;
+      if (result[0].max_ticket_id) {
+        const maxId = result[0].max_ticket_id;
+        const currentNumber = parseInt(maxId.slice(prefix.length), 10);
+        nextIdNumber = currentNumber + 1;
+      }
+
+      const ticket_id = `${prefix}${nextIdNumber.toString().padStart(2, "0")}`;
+
+      const insertQuery = `
+        INSERT INTO ticket_raising (ticket_id, screenshot, subject, ticket_body, priority_id, am_id, consultant_emp_id, service_id, ticket_status_id, client_id, company_name)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 2, ?, ?);
+      `;
+
+      db.query(
+        insertQuery,
+        [
+          ticket_id,
+          screenshotPath,
+          subject,
+          ticket_body,
+          priority,
+          am_id,
+          consultant_emp_id,
+          service_id,
+          client_id,
+          company_name,
+        ],
+        (err, result) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ success: false, message: "Error creating ticket." });
+          }
+
+          // Log ticket creation
+          const logTicketCreationQuery = `
+          INSERT INTO action_logs (action_type, action_details, timestamp, ticket_id, emp_id, client_id)
+          VALUES (?, ?, NOW(), ?, ?, ?);
+        `;
+
+          db.query(
+            logTicketCreationQuery,
+            [
+              "Ticket Created",
+              `Ticket ${ticket_id} created by Account Manager ${am_id}`,
+              ticket_id,
+              null,
+              client_id,
+            ],
+            (err) => {
+              if (err) console.error("Error logging ticket creation:", err);
+            }
+          );
+
+          // Find consultant email
+          const getConsultantEmailQuery =
+            "SELECT email FROM internal WHERE emp_id = ?;";
+          db.query(
+            getConsultantEmailQuery,
+            [consultant_emp_id],
+            (err, result) => {
+              if (err) {
+                return res.status(500).json({
+                  success: false,
+                  message: "Error fetching consultant email.",
+                });
+              }
+
+              const consultantEmail = result[0]?.email;
+              if (!consultantEmail) {
+                return res.status(404).json({
+                  success: false,
+                  message: "Consultant email not found.",
+                });
+              }
+
+              // Get priority name
+              const getPriorityNameQuery =
+                "SELECT priority_name FROM priority_levels WHERE priority_id = ?;";
+              db.query(getPriorityNameQuery, [priority], (err, result) => {
+                if (err) {
+                  return res.status(500).json({
+                    success: false,
+                    message: "Error fetching priority name.",
+                  });
+                }
+
+                const priorityName = result[0]?.priority_name || "Unknown";
+
+                // Send email to client
+                const clientMailOptions = {
+                  from: "sivaranji5670@gmail.com",
+                  to: email,
+                  subject: `Ticket Created: ${ticket_id}`,
+                  html: `
+                <html>
+                <head>
+                  <style>
+                    body {
+                      font-family: Arial, sans-serif;
+                      line-height: 1.6;
+                      color: #333;
+                    }
+                    .container {
+                      width: 100%;
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      border: 1px solid #eee;
+                      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                      background-color: #f9f9f9;
+                    }
+                    .header {
+                      background-color: #007bff;
+                      color: white;
+                      padding: 10px 0;
+                      text-align: center;
+                      font-size: 18px;
+                      border-bottom: 3px solid #0056b3;
+                    }
+                    .content {
+                      margin-top: 20px;
+                      padding: 0 20px;
+                    }
+                    .content p {
+                      margin: 0 0 10px;
+                    }
+                    .footer {
+                      margin-top: 20px;
+                      padding: 10px;
+                      background-color: #f1f1f1;
+                      text-align: center;
+                      font-size: 12px;
+                      color: #777;
+                    }
+                    .footer a {
+                      color: #007bff;
+                      text-decoration: none;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="container">
+                    <div class="header">Ticket Created Successfully</div>
+                    <div class="content">
+                      <p>Dear Client,</p>
+                      <p>We have successfully created your ticket with the following details:</p>
+                      <p><strong>Ticket ID:</strong> ${ticket_id}</p>
+                      <p><strong>Subject:</strong> ${subject}</p>
+                      <p><strong>Description:</strong> ${ticket_body}</p>
+                      <p><strong>Assigned Consultant:</strong> ${consultantEmail}</p>
+                      <p><strong>Priority:</strong> ${priorityName}</p>
+                      <p>We will notify you once there is an update on your ticket. Thank you for choosing our services.</p>
+                    </div>
+                    <div class="footer">
+                      <p>Best regards,<br>Support Team</p>
+                      <p><a href="https://www.kggeniuslabs.com">Visit our website</a></p>
+                    </div>
+                  </div>
+                </body>
+                </html>
+              `,
+                  attachments: screenshot
+                    ? [
+                        {
+                          filename: screenshot,
+                          path: path.join(
+                            __dirname,
+                            "..",
+                            "uploads",
+                            screenshot
+                          ),
+                        },
+                      ]
+                    : [],
+                };
+
+                transporter.sendMail(clientMailOptions, (err) => {
+                  if (err) {
+                    return res.status(500).json({
+                      success: false,
+                      message: "Error sending email to client.",
+                    });
+                  }
+
+                  // Log client email sent
+                  const logClientEmailQuery = `
+                INSERT INTO action_logs (action_type, action_details, timestamp, ticket_id, emp_id, client_id)
+                VALUES (?, ?, NOW(), ?, ?, ?);
+              `;
+
+                  db.query(
+                    logClientEmailQuery,
+                    [
+                      "Email Sent to Client",
+                      `Email sent to ${email} regarding ticket ${ticket_id}`,
+                      ticket_id,
+                      null,
+                      client_id,
+                    ],
+                    (err) => {
+                      if (err)
+                        console.error("Error logging client email:", err);
+                    }
+                  );
+
+                  // Send email to consultant
+                  const consultantMailOptions = {
+                    from: "sivaranji5670@gmail.com",
+                    to: consultantEmail,
+                    subject: `New Ticket Assigned: ${ticket_id}`,
+                    html: `
+                  <html>
+                  <head>
+                    <style>
+                      body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                      }
+                      .container {
+                        width: 100%;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #eee;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        background-color: #f9f9f9;
+                      }
+                      .header {
+                        background-color: #007bff;
+                        color: white;
+                        padding: 10px 0;
+                        text-align: center;
+                        font-size: 18px;
+                        border-bottom: 3px solid #0056b3;
+                      }
+                      .content {
+                        margin-top: 20px;
+                        padding: 0 20px;
+                      }
+                      .content p {
+                        margin: 0 0 10px;
+                      }
+                      .footer {
+                        margin-top: 20px;
+                        padding: 10px;
+                        background-color: #f1f1f1;
+                        text-align: center;
+                        font-size: 12px;
+                        color: #777;
+                      }
+                      .footer a {
+                        color: #007bff;
+                        text-decoration: none;
+                      }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="container">
+                      <div class="header">New Ticket Assigned</div>
+                      <div class="content">
+                        <p>Dear Consultant,</p>
+                        <p>A new ticket has been assigned to you with the following details:</p>
+                        <p><strong>Ticket ID:</strong> ${ticket_id}</p>
+                        <p><strong>Subject:</strong> ${subject}</p>
+                        <p><strong>Description:</strong> ${ticket_body}</p>
+<p><strong>Client Email:</strong> ${email}</p>
+<p><strong>Priority:</strong> ${priorityName}</p>
+<p>Please review the ticket and take the necessary actions. The client will be notified once you start working on it.</p>
+</div>
+<div class="footer">
+<p>Best regards,<br>Support Team</p>
+<p><a href="https://www.kggeniuslabs.com">Visit our website</a></p>
+</div>
+</div>
+</body>
+</html>
+`,
+                    attachments: screenshot
+                      ? [
+                          {
+                            filename: screenshot,
+                            path: path.join(
+                              __dirname,
+                              "..",
+                              "uploads",
+                              screenshot
+                            ),
+                          },
+                        ]
+                      : [],
+                  };
+                  transporter.sendMail(consultantMailOptions, (err) => {
+                    if (err) {
+                      return res.status(500).json({
+                        success: false,
+                        message: "Error sending email to consultant.",
+                      });
+                    }
+
+                    // Log consultant email sent
+                    const logConsultantEmailQuery = `
+    INSERT INTO action_logs (action_type, action_details, timestamp, ticket_id, emp_id, client_id)
+    VALUES (?, ?, NOW(), ?, ?, ?);
+  `;
+
+                    db.query(
+                      logConsultantEmailQuery,
+                      [
+                        "Email Sent to Consultant",
+                        `Email sent to ${consultantEmail} regarding ticket ${ticket_id}`,
+                        ticket_id,
+                        consultant_emp_id,
+                        client_id,
+                      ],
+                      (err) => {
+                        if (err)
+                          console.error("Error logging consultant email:", err);
+                      }
+                    );
+
+                    res
+                      .status(200)
+                      .json({
+                        success: true,
+                        message: "Ticket created successfully.",
+                        ticket_id,
+                      });
+                  });
+                });
+              });
+            }
+          );
+        }
+      );
+    });
+  } catch (error) {
+    console.error("Error in AccountMangerTicketRaising:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while processing your request.",
+    });
+  }
 };

@@ -7,6 +7,8 @@ import ClientList from "../ClientList/ClientList";
 import AdminDash from "../AdminDash/AdminDash";
 import TicketTable from "../AdminDash/TicketTable";
 import ClientTable from "../AdminDash/ClientTable";
+import InternalTable from "../AdminDash/InternalTable";
+import AllTicketTable from "../AdminDash/AllTicketTable";
 
 export function AdminDashboard() {
   return (
@@ -123,6 +125,43 @@ export function AdminClientTable() {
           <div className="col-lg-1"></div>
           <div className="col-lg-9">
             <ClientTable />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export function AdminInternalTable() {
+  return (
+    <>
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-lg-2">
+            <AdminSidebar />
+          </div>
+          <div className="col-lg-1"></div>
+          <div className="col-lg-9">
+            <InternalTable />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+
+export function AdminAllticketTable() {
+  return (
+    <>
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-lg-2">
+            <AdminSidebar />
+          </div>
+          <div className="col-lg-1"></div>
+          <div className="col-lg-9">
+            <AllTicketTable />
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import express from 'express';
-import { addClientService, getAccountManagers, getClientServices, getServices } from '../controllers/clientServices.controller.mjs';
+import { addClientService, getAccountManagers, getAllServices, getClientServices, getServices } from '../controllers/clientServices.controller.mjs';
 
 const router = express.Router();
 
@@ -8,5 +8,6 @@ router.post('/add-client-service', addClientService);
 router.get('/services', getServices);
 router.get("/:client_id/services", getClientServices);
 router.get('/account-managers',getAccountManagers)
+router.get('/getservicesbyamid/:am_id',getAllServices)
 
 export default router;

@@ -62,39 +62,40 @@ export const getAvailableServices = (req, res) => {
   });
 };
 
-// export const getTicketsCountAndStatus = (req, res) => {
-//   const sql = `SELECT ticket_status_id, COUNT(*) AS ticket_count
-// FROM ticket_raising
-// GROUP BY ticket_status_id;
-// `;
+export const getTicketsCountAndStatus = (req, res) => {
+  const sql = `SELECT ticket_status_id, COUNT(*) AS ticket_count
+FROM ticket_raising
+GROUP BY ticket_status_id;
+`;
 
-//   db.query(sql, (err, result) => {
-//     if (err) {
-//       res.json({ message: err });
-//     } else {
-//       res.json(result);
-//     }
-//   });
-// };
+  db.query(sql, (err, result) => {
+    if (err) {
+      res.json({ message: err });
+    } else {
+      res.json(result);
+    }
+  });
+};
 
 export const getAllTickets = (req, res) => {
   const query = `
-   SELECT 
+SELECT 
     tr.ticket_id,
     tr.ticket_body,
     tr.subject,
     tr.company_name,
-    consultant.email AS consultant_mail,
-    account_manager.email AS account_manager_mail,
-    ts.status_name
+    COALESCE(consultant.email, 'N/A') AS consultant_mail,
+    COALESCE(account_manager.email, 'N/A') AS account_manager_mail,
+    COALESCE(ts.status_name, 'Unknown') AS status_name
 FROM 
     ticket_raising tr
-JOIN 
+LEFT JOIN 
     internal consultant ON tr.consultant_emp_id = consultant.emp_id
-JOIN 
+LEFT JOIN 
     internal account_manager ON tr.am_id = account_manager.am_id
-JOIN 
+LEFT JOIN 
     ticket_status ts ON tr.ticket_status_id = ts.ticket_status_id;
+
   `;
 
   db.query(query, (err, results) => {
@@ -108,12 +109,12 @@ JOIN
 };
 
 export const getClientCompanyCount = (req, res) => {
-  const query = 'SELECT COUNT(DISTINCT company) AS company_count FROM client';
+  const query = "SELECT COUNT(DISTINCT company) AS company_count FROM client";
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error('Error fetching company count:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      console.error("Error fetching company count:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
     }
 
     const companyCount = results[0].company_count;
@@ -124,6 +125,7 @@ export const getClientCompanyCount = (req, res) => {
 export const getClientDetails = (req, res) => {
   const query = `
     SELECT 
+      client_id,
       company,
       email,
       address,
@@ -143,6 +145,25 @@ export const getClientDetails = (req, res) => {
 
     res.json(results);
   });
+};
+
+export const getAllInternalCount = async (req, res) => {
+  try {
+    // Define the query to count the users in the internal table
+    const query = "SELECT COUNT(*) AS user_count FROM internal";
+
+    // Execute the query
+    db.query(query, (err, result) => {
+      if (err) {
+        res.json({ error: err });
+      } else {
+        res.json(result);
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
 };
 
 export const getInternalDetails = (req, res) => {
@@ -240,4 +261,3 @@ export const getAmIdBasedTicketFetch = (req, res) => {
     }
   });
 };
-

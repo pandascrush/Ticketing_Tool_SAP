@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faAddressCard,
   faBars,
   faHome,
   faMoneyBill,
@@ -80,6 +81,13 @@ const Amsidebar = () => {
               >
                 Tickets
               </Nav.Link>
+              <NavLink
+                to={`/admin/clientdeatil`}
+                className="text-light text-decoration-none mx-3 my-3"
+              >
+                <FontAwesomeIcon icon={faAddressCard} className="me-2" />
+                Ticket Booking
+              </NavLink>
               <Nav.Link
                 onClick={handleLogout}
                 as={Link}
@@ -119,8 +127,16 @@ const Amsidebar = () => {
               <FontAwesomeIcon icon={faTicket} className="me-2" />
               Tickets
             </Nav.Link>
+            <NavLink
+              to={`/manager/ticketraise/${id}`}
+              className="text-light text-decoration-none mx-3 my-3"
+            >
+              <FontAwesomeIcon icon={faAddressCard} className="me-2" />
+              Ticket Booking
+            </NavLink>
 
-            <Nav.Link as={Link}
+            <Nav.Link
+              as={Link}
               onClick={handleLogout}
               to={`/`}
               className="text-light text-decoration-none mx-3 my-3"

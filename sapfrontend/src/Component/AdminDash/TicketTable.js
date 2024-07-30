@@ -44,13 +44,13 @@ const TicketTable = () => {
   if (error) return <p>Error fetching data: {error.message}</p>;
 
   const getIconByFileType = (fileName) => {
-    const fileExtension = fileName.split('.').pop().toLowerCase();
+    const fileExtension = fileName.split(".").pop().toLowerCase();
     switch (fileExtension) {
-      case 'pdf':
+      case "pdf":
         return <PictureAsPdfIcon />;
-      case 'jpeg':
-      case 'jpg':
-      case 'png':
+      case "jpeg":
+      case "jpg":
+      case "png":
         return <ImageIcon />;
       default:
         return <InsertDriveFileIcon />;
@@ -60,28 +60,28 @@ const TicketTable = () => {
   const handleDownload = async (attachmentUrl, fileName) => {
     try {
       const response = await axios.get(attachmentUrl, {
-        responseType: 'blob',
+        responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', fileName);
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
     } catch (error) {
-      console.error('Error downloading attachment:', error);
+      console.error("Error downloading attachment:", error);
     }
   };
 
   // Filter tickets based on the search term
-  const filteredTickets = tickets.filter(ticket =>
+  const filteredTickets = tickets.filter((ticket) =>
     ticket.company_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Typography variant="h4" gutterBottom>
+    <div style={{ padding: "20px" }}>
+      <Typography variant="h4" gutterBottom style={{ margin: '20px 0', color: '#1E3A8A' }}>
         Tickets for IT Service: {amId}
       </Typography>
       <TextField
@@ -110,8 +110,13 @@ const TicketTable = () => {
                 <TableCell>{ticket.ticket_id}</TableCell>
                 <TableCell>{ticket.ticket_body}</TableCell>
                 <TableCell>{ticket.company_name}</TableCell>
-                <TableCell>{ticket.consultant_email || "Not Assigned"}</TableCell>
-                <TableCell>{ticket.account_manager_email || "Not Assigned"}</TableCell> {/* New Data */}
+                <TableCell>
+                  {ticket.consultant_email || "Not Assigned"}
+                </TableCell>
+                <TableCell>
+                  {ticket.account_manager_email || "Not Assigned"}
+                </TableCell>{" "}
+                {/* New Data */}
                 <TableCell>{ticket.status_name}</TableCell>
                 <TableCell>
                   {ticket.attachment && (
@@ -119,7 +124,14 @@ const TicketTable = () => {
                       variant="contained"
                       color="primary"
                       startIcon={getIconByFileType(ticket.attachment)}
-                      onClick={() => handleDownload(ticket.attachment, `screenshot-${ticket.ticket_id}.${ticket.attachment.split('.').pop()}`)}
+                      onClick={() =>
+                        handleDownload(
+                          ticket.attachment,
+                          `screenshot-${ticket.ticket_id}.${ticket.attachment
+                            .split(".")
+                            .pop()}`
+                        )
+                      }
                     >
                       Download Attachment
                     </Button>

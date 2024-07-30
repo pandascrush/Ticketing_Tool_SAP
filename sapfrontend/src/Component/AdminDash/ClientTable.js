@@ -9,6 +9,7 @@ import {
   TableRow,
   Paper,
   TextField,
+  Typography,
 } from "@mui/material";
 
 function ClientTable() {
@@ -38,9 +39,13 @@ function ClientTable() {
 
   return (
     <div>
-      <h1 className="text-center bg-primary text-muted p-2 text-warning">
-        Client details
-      </h1>
+      <Typography
+        variant="h4"
+        gutterBottom
+        style={{ margin: "20px 0", color: "#1E3A8A" }}
+      >
+        Client Deatils
+      </Typography>
       <TextField
         label="Search by Company Name"
         variant="outlined"

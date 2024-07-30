@@ -168,3 +168,20 @@ export const getAccountManagers = async (req, res) => {
     res.status(500).send("Failed to fetch account managers.");
   }
 };
+
+export const getAllServices = async (req, res) => {
+  const { am_id } = req.params;
+  try {
+    const sql = "select* from subdivisions where am_id = ?";
+    db.query(sql, [am_id], (err, result) => {
+      if (err) {
+        res.json({ error: err });
+      } else {
+        res.json(result);
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching subdivisions:", error);
+    res.status(500).json({ message: "Failed to fetch subdivisions." });
+  }
+};

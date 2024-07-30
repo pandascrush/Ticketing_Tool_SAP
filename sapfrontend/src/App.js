@@ -5,10 +5,12 @@ import {
   ClientTicketStatus,
 } from "./Component/Login/Dashboard";
 import {
+  AdminAllticketTable,
   AdminClientList,
   AdminClientRegister,
   AdminClientTable,
   AdminDashboard,
+  AdminInternalTable,
   AdminMemberRegister,
   AdminServiceSection,
   AdminTicketTable,
@@ -16,6 +18,7 @@ import {
 import {
   Amdashboard,
   AmdTicketCount,
+  AmdTicketRaising,
   AmdTicketShow,
   AmdTicketTrack,
 } from "./Component/Amdashboard/Amdashboard";
@@ -48,6 +51,8 @@ function App() {
           <Route path="/admin/dash" Component={AdminDashboard} />
           <Route path="/admin/tickettable/:id" Component={AdminTicketTable} />
           <Route path="/admin/clientdetail" Component={AdminClientTable} />
+          <Route path="/admin/internaldetail" Component={AdminInternalTable} />
+          <Route path="/admin/allticket" Component={AdminAllticketTable} />
 
           {/*Account Manager Routes*/}
           <Route path="/manager/:id" element={<Amdashboard />} />
@@ -60,6 +65,7 @@ function App() {
             path="/manager/track-status/:am_id/:ticket_id"
             Component={AmdTicketTrack}
           />
+          <Route path="/manager/ticketraise/:id" Component={AmdTicketRaising} />
 
           {/*Senior Consultant Routes*/}
           <Route
