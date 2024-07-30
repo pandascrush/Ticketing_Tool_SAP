@@ -127,13 +127,14 @@ const Amsidebar = () => {
               <FontAwesomeIcon icon={faTicket} className="me-2" />
               Tickets
             </Nav.Link>
-            <NavLink
+            <Nav.Link
+              as={Link}
               to={`/manager/ticketraise/${id}`}
               className="text-light text-decoration-none mx-3 my-3"
             >
               <FontAwesomeIcon icon={faAddressCard} className="me-2" />
               Ticket Booking
-            </NavLink>
+            </Nav.Link>
 
             <Nav.Link
               as={Link}
