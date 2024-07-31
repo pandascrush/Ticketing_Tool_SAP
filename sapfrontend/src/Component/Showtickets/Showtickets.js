@@ -41,7 +41,7 @@ function TicketsCount() {
                                     </Link>
 
                                 </td>
-                                <td>{ticket.ticket_count}</td>
+                                <td>{ticket.total_tickets}</td>
                             </tr>
                         ))}
                     </tbody>

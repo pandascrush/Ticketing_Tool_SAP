@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import {
   Card,
@@ -76,29 +76,9 @@ const ChartWrapper = styled(Box)({
   height: "250px",
 });
 
-const doughnutOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "right",
-      labels: {
-        usePointStyle: true,
-      },
-    },
-    title: {
-      display: true,
-      text: "Ticket Status Distribution",
-      font: {
-        size: 16,
-        weight: "bold",
-      },
-    },
-  },
-};
-
 function TicketSummary() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const decodeId = atob(id);
 
   const [ticketData, setTicketData] = useState({
@@ -131,6 +111,41 @@ function TicketSummary() {
         ],
       },
     ],
+  };
+
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "right",
+        labels: {
+          usePointStyle: true,
+        },
+      },
+      title: {
+        display: true,
+        text: "Ticket Status Distribution",
+        font: {
+          size: 16,
+          weight: "bold",
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            return tooltipItem.label + ": " + tooltipItem.raw;
+          },
+        },
+      },
+    },
+    onClick: (event) => {
+      const chart = event.chart;
+      const activeElements = chart.getActiveElements();
+      if (activeElements.length > 0) {
+        navigate(`/seniorcons/tickettable/${id}`);
+      }
+    },
   };
 
   useEffect(() => {
@@ -242,13 +257,11 @@ function TicketSummary() {
 
           {/* Doughnut Chart */}
           <Grid item xs={12}>
-            <StyledCard component={Link} to={`/seniorcons/tickettable/${id}`}>
-              <ChartContainer>
-                <ChartWrapper>
-                  <Doughnut data={doughnutData} options={doughnutOptions} />
-                </ChartWrapper>
-              </ChartContainer>
-            </StyledCard>
+            <ChartContainer>
+              <ChartWrapper>
+                <Doughnut data={doughnutData} options={doughnutOptions} />
+              </ChartWrapper>
+            </ChartContainer>
           </Grid>
         </Grid>
       </Box>

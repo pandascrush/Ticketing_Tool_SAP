@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate,Link } from "react-router-dom";
 import axios from "axios";
 import {
   Card,
@@ -18,55 +18,60 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 // Custom styles for cards
 const StyledCard = styled(Card)(({ size }) => ({
-  backgroundColor: "#ffffff", // White background
-  minHeight: size === "small" ? "80px" : "120px", // Adjusted minHeight for smaller cards
+  backgroundColor: "#ffffff",
+  minHeight: size === "small" ? "80px" : "120px",
   borderRadius: "10px",
-  boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.3)", // Enhanced box shadow for more visibility
+  boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.3)",
   marginBottom: "20px",
   textAlign: "center",
-  cursor: "pointer", // Change cursor to pointer for clickable cards
+  cursor: "pointer",
   transition: "transform 0.3s ease, box-shadow 0.3s ease",
-  textDecoration: "none", // Remove underline from text
+  textDecoration: "none",
   "&:hover": {
-    transform: "scale(1.02)", // Slight zoom effect on hover
-    boxShadow: "0px 16px 30px rgba(0, 0, 0, 0.4)", // Enhanced shadow on hover
-  }
+    transform: "scale(1.02)",
+    boxShadow: "0px 16px 30px rgba(0, 0, 0, 0.4)",
+  },
 }));
 
 const StyledCardContent = styled(CardContent)(({ size }) => ({
-  padding: size === "small" ? "5px" : "10px", // Reduced padding for smaller cards
-  minHeight: size === "small" ? "60px" : "80px", // Adjusted minimum height for smaller cards
+  padding: size === "small" ? "5px" : "10px",
+  minHeight: size === "small" ? "60px" : "80px",
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-  alignItems: "center", // Center content horizontally
+  alignItems: "center",
 }));
 
 const StyledTypography = styled(Typography)({
   fontWeight: "bold",
-  fontSize: "1rem", // Adjusted font size for smaller cards
-  color: "#000000", // Black text color
+  fontSize: "1rem",
+  color: "#000000",
 });
 
-// Options for Doughnut charts to control size
-const chartOptions = {
+// Options for Doughnut charts
+const chartOptions = (navigate, type) => ({
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: 'top',
+      position: "top",
     },
     tooltip: {
       callbacks: {
-        label: function(tooltipItem) {
-          return tooltipItem.label + ': ' + tooltipItem.raw;
-        }
-      }
-    }
-  }
-};
+        label: function (tooltipItem) {
+          return tooltipItem.label + ": " + tooltipItem.raw;
+        },
+      },
+    },
+  },
+  onClick: (event) => {
+    navigate(type);
+  },
+});
 
 function TicketSummary() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const decodeId = atob(id);
   const [ticketData, setTicketData] = useState({
     total_tickets: 0,
@@ -132,7 +137,7 @@ function TicketSummary() {
         <Grid container spacing={4}>
           {/* Cards for ticket data */}
           <Grid item xs={12} md={4}>
-            <StyledCard size="small" className="card" component={Link} to={`/manager/amtickets/${id}`}>
+            <StyledCard className="card" size="small" component={Link} to={`/manager/amtickets/${id}`}>
               <StyledCardContent size="small">
                 <StyledTypography>Total Tickets</StyledTypography>
                 <Typography variant="h6" style={{ color: "#000000" }}>
@@ -142,7 +147,7 @@ function TicketSummary() {
             </StyledCard>
           </Grid>
           <Grid item xs={12} md={4}>
-            <StyledCard size="small" className="card" component={Link} to={`/manager/amtickets/${id}`}>
+            <StyledCard className="card" size="small" component={Link} to={`/manager/amtickets/${id}`}>
               <StyledCardContent size="small">
                 <StyledTypography>Raised</StyledTypography>
                 <Typography variant="h6" style={{ color: "#000000" }}>
@@ -152,7 +157,7 @@ function TicketSummary() {
             </StyledCard>
           </Grid>
           <Grid item xs={12} md={4}>
-            <StyledCard size="small" className="card" component={Link} to={`/manager/amtickets/${id}`}>
+            <StyledCard className="card" size="small" component={Link} to={`/manager/amtickets/${id}`}>
               <StyledCardContent size="small">
                 <StyledTypography>Assigned</StyledTypography>
                 <Typography variant="h6" style={{ color: "#000000" }}>
@@ -162,7 +167,7 @@ function TicketSummary() {
             </StyledCard>
           </Grid>
           <Grid item xs={12} md={4}>
-            <StyledCard size="small" className="card" component={Link} to={`/manager/amtickets/${id}`}>
+            <StyledCard className="card" size="small" component={Link} to={`/manager/amtickets/${id}`}>
               <StyledCardContent size="small">
                 <StyledTypography>In Progress</StyledTypography>
                 <Typography variant="h6" style={{ color: "#000000" }}>
@@ -172,7 +177,7 @@ function TicketSummary() {
             </StyledCard>
           </Grid>
           <Grid item xs={12} md={4}>
-            <StyledCard size="small" className="card" component={Link} to={`/manager/amtickets/${id}`}>
+            <StyledCard className="card" size="small" component={Link} to={`/manager/amtickets/${id}`}>
               <StyledCardContent size="small">
                 <StyledTypography>Approved</StyledTypography>
                 <Typography variant="h6" style={{ color: "#000000" }}>
@@ -182,7 +187,7 @@ function TicketSummary() {
             </StyledCard>
           </Grid>
           <Grid item xs={12} md={4}>
-            <StyledCard size="small" className="card" component={Link} to={`/manager/amtickets/${id}`}>
+            <StyledCard className="card" size="small" component={Link} to={`/manager/amtickets/${id}`}>
               <StyledCardContent size="small">
                 <StyledTypography>Completed</StyledTypography>
                 <Typography variant="h6" style={{ color: "#000000" }}>
@@ -193,24 +198,20 @@ function TicketSummary() {
           </Grid>
           {/* Individual Doughnut Charts */}
           <Grid item xs={12} md={6}>
-            <StyledCard component={Link} to={`/manager/amtickets/${id}`}>
               <StyledCardContent>
                 <StyledTypography>Ticket Data</StyledTypography>
                 <div style={{ width: "100%", height: "350px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                  <Doughnut data={ticketDataChart} options={chartOptions} />
+                  <Doughnut data={ticketDataChart} options={chartOptions(navigate, `/manager/amtickets/${id}`)} />
                 </div>
               </StyledCardContent>
-            </StyledCard>
           </Grid>
           <Grid item xs={12} md={6}>
-            <StyledCard component={Link} to={`/manager/empdetail/${id}`}>
               <StyledCardContent>
                 <StyledTypography>Employee Data</StyledTypography>
                 <div style={{ width: "100%", height: "350px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                  <Doughnut data={employeeDataChart} options={chartOptions} />
+                  <Doughnut data={employeeDataChart} options={chartOptions(navigate, `/manager/empdetail/${id}`)} />
                 </div>
               </StyledCardContent>
-            </StyledCard>
           </Grid>
         </Grid>
       </Box>

@@ -63,9 +63,9 @@ const Sidebarnew = () => {
             className={`${isOpen ? "show" : ""}`}
           >
             <Nav className="ml-auto">
-              <Nav.Link as={Link} to={`/`}>
-                Logout
-              </Nav.Link>
+              {/* <Nav.Link as={Link} to={`/`}>
+                Home
+              </Nav.Link> */}
               <Nav.Link as={Link} to={`/client/raiseticket/${id}`}>
                 Ticket Booking
               </Nav.Link>
@@ -88,14 +88,14 @@ const Sidebarnew = () => {
           </div>
           <Nav className="flex-column text-dark">
             <h3 className="text-light mx-3 my-3">Welcome</h3>
-            <Nav.Link
+            {/* <Nav.Link
               as={Link}
               to={`/`}
               className="text-light text-decoration-none mx-3 my-2"
             >
               <FontAwesomeIcon icon={faHome} className="me-2" />
               Home{" "}
-            </Nav.Link>
+            </Nav.Link> */}
             <Nav.Link
               as={Link}
               to={`/client/raiseticket/${id}`}

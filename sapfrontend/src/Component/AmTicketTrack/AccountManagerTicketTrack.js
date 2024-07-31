@@ -73,12 +73,17 @@ const AccountManagerTicketTrack = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await axios.get(`
-          http://192.168.253.177:5002/api/tickets/track/${decodedId}/${decodedTicketId}
-        `);
-        setTickets(response.data);
-        // console.log(tickets);
-        setLoading(false);
+        axios
+          .get(
+            `
+          http://localhost:5002/api/tickets/track/${decodedId}/${decodedTicketId}
+        `
+          )
+          .then((response) => {
+            setTickets(response.data);
+            console.log(response.data);
+            setLoading(false);
+          });
       } catch (error) {
         console.error("Error fetching tickets:", error);
         setLoading(false);
@@ -108,7 +113,7 @@ const AccountManagerTicketTrack = () => {
 
     try {
       const response = await axios.post(
-        "http://192.168.253.177:5002/api/tickets/submitChanges",
+        "http://localhost:5002/api/tickets/submitChanges",
         {
           am_id: decodedId,
           ticket_id: currentTicketId,
@@ -145,7 +150,7 @@ const AccountManagerTicketTrack = () => {
 
     try {
       const response = await axios.post(
-        "http://192.168.253.177:5002/api/tickets/approve",
+        "http://localhost:5002/api/tickets/approve",
         {
           am_id: decodedId,
           ticket_id: ticketId,
@@ -185,7 +190,7 @@ const AccountManagerTicketTrack = () => {
   return (
     <ThemeProvider theme={theme}>
       <StyledContainer>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" gutterBottom style={{ margin: '20px 0', color: '#1E3A8A' }}>
           Submission
         </Typography>
         {loading ? (

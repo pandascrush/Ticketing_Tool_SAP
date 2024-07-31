@@ -70,11 +70,11 @@ const SeniorConsultantSidebar = () => {
           >
             <Nav className="ml-auto">
               <Nav.Link as={Link} to={`/seniorcons/${id}`} className="text-light">
-                Ticket Summary
+                DashBoard
               </Nav.Link>
               <Nav.Link
                 as={Link}
-                to={`/seniorcons/${id}`}
+                to={`/seniorcons/tickets/${id}`}
                 className="text-light"
               >
                 Tickets
@@ -108,7 +108,7 @@ const SeniorConsultantSidebar = () => {
               className="text-light text-decoration-none mx-3 my-2"
             >
               <FontAwesomeIcon icon={faRectangleList} className="me-2" />
-              TicketSummary
+              DashBoard
             </Nav.Link>
             <Nav.Link
               as={Link}
