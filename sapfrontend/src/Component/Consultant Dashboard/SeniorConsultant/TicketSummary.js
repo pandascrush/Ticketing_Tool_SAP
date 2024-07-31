@@ -11,10 +11,25 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale } from "chart.js";
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
 
 // Register ChartJS components
-ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale);
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  CategoryScale,
+  LinearScale
+);
 
 // Custom styles for cards
 const StyledCard = styled(Card)(({ size }) => ({
@@ -66,17 +81,17 @@ const doughnutOptions = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: 'right',
+      position: "right",
       labels: {
         usePointStyle: true,
       },
     },
     title: {
       display: true,
-      text: 'Ticket Status Distribution',
+      text: "Ticket Status Distribution",
       font: {
         size: 16,
-        weight: 'bold',
+        weight: "bold",
       },
     },
   },
@@ -96,10 +111,10 @@ function TicketSummary() {
   });
 
   const doughnutData = {
-    labels: ['Raised', 'Assigned', 'In Progress', 'Approved', 'Completed'],
+    labels: ["Raised", "Assigned", "In Progress", "Approved", "Completed"],
     datasets: [
       {
-        label: 'Ticket Status',
+        label: "Ticket Status",
         data: [
           ticketData.status_1_tickets,
           ticketData.status_2_tickets,
@@ -108,11 +123,11 @@ function TicketSummary() {
           ticketData.status_5_tickets,
         ],
         backgroundColor: [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
-          '#4BC0C0',
-          '#9966FF',
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
         ],
       },
     ],
