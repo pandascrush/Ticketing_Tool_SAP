@@ -29,7 +29,7 @@ export const getCompaniesWithTicketCounts = (req, res) => {
 
 export const getTicketsForCompanyAndConsultant = (req, res) => {
   const { emp_id, company_name } = req.params;
-  const baseurl = 'http://localhost:5002'
+  const baseurl = "http://localhost:5002";
 
   const query = `
         SELECT 
@@ -64,7 +64,8 @@ export const getTicketsForCompanyAndConsultant = (req, res) => {
 };
 
 export const submitTicketCorrection = (req, res) => {
-  const { ticket_id, subject, ticket_body, screenshot, am_id, emp_id } = req.body;
+  const { ticket_id, subject, ticket_body, screenshot, am_id, emp_id } =
+    req.body;
   let corrected_file = req.file ? req.file.path : null;
 
   // Validate the corrected file is a PDF
@@ -170,37 +171,47 @@ export const submitTicketCorrection = (req, res) => {
               // Log actions
               const logActions = [
                 {
-                  type: 'Ticket Correction Submitted',
+                  type: "Ticket Correction Submitted",
                   details: `Correction submitted for ticket ${ticket_id} by consultant ${emp_id}`,
                   emp_id: emp_id,
                   client_id: null,
                 },
                 {
-                  type: 'Email Sent to Account Manager',
+                  type: "Email Sent to Account Manager",
                   details: `Email sent to account manager ${accountManagerEmail} about correction for ticket ${ticket_id}`,
                   emp_id: emp_id,
                   client_id: null,
-                }
+                },
               ];
 
-              const logQuery = "INSERT INTO action_logs (action_type, action_details, ticket_id, emp_id, client_id) VALUES (?, ?, ?, ?, ?)";
+              const logQuery =
+                "INSERT INTO action_logs (action_type, action_details, ticket_id, emp_id, client_id) VALUES (?, ?, ?, ?, ?)";
 
               logActions.forEach((log) => {
-                db.query(logQuery, [log.type, log.details, ticket_id, log.emp_id, log.client_id], (logErr) => {
-                  if (logErr) {
-                    console.error("Error logging action:", logErr);
+                db.query(
+                  logQuery,
+                  [log.type, log.details, ticket_id, log.emp_id, log.client_id],
+                  (logErr) => {
+                    if (logErr) {
+                      console.error("Error logging action:", logErr);
+                    }
                   }
-                });
+                );
               });
 
               // Update ticket_status_id in ticket_raising table
-              const updateStatusQuery = "UPDATE ticket_raising SET ticket_status_id = 3 WHERE ticket_id = ?";
+              const updateStatusQuery =
+                "UPDATE ticket_raising SET ticket_status_id = 3 WHERE ticket_id = ?";
               db.query(updateStatusQuery, [ticket_id], (updateErr) => {
                 if (updateErr) {
                   console.error("Error updating ticket status:", updateErr);
-                  return res.status(500).json({ error: "Internal Server Error" });
+                  return res
+                    .status(500)
+                    .json({ error: "Internal Server Error" });
                 }
-                console.log(`Ticket status updated to 3 for ticket ${ticket_id}`);
+                console.log(
+                  `Ticket status updated to 3 for ticket ${ticket_id}`
+                );
               });
             }
           });
@@ -241,7 +252,6 @@ export const getSubmitTicketChanges = (req, res) => {
   });
 };
 
-
 export const getSubmitTicketChangesCount = async (req, res) => {
   const { ticket_id } = req.params;
 
@@ -263,3 +273,72 @@ export const getSubmitTicketChangesCount = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
+
+// Consultant Dashboard
+export const getConsultantBasedTicketCount = async (req, res) => {
+  const { id } = req.params;
+
+  const query = `SELECT 
+    tr.company_name,
+    COUNT(tr.ticket_id) AS total_tickets,
+    SUM(CASE WHEN tr.ticket_status_id = 1 THEN 1 ELSE 0 END) AS status_1_tickets,
+    SUM(CASE WHEN tr.ticket_status_id = 2 THEN 1 ELSE 0 END) AS status_2_tickets,
+    SUM(CASE WHEN tr.ticket_status_id = 3 THEN 1 ELSE 0 END) AS status_3_tickets,
+    SUM(CASE WHEN tr.ticket_status_id = 4 THEN 1 ELSE 0 END) AS status_4_tickets,
+    SUM(CASE WHEN tr.ticket_status_id = 5 THEN 1 ELSE 0 END) AS status_5_tickets
+FROM
+    ticket_raising tr
+LEFT JOIN
+    ticket_status ts ON tr.ticket_status_id = ts.ticket_status_id
+WHERE
+    tr.consultant_emp_id = ? -- Changed from am_id to consultant_emp_id
+GROUP BY
+    tr.company_name
+ORDER BY
+    MAX(tr.timestamp) DESC;`;
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      res.json({ error: err });
+    } else {
+      res.json({ count: result });
+    }
+  });
+};
+
+export const getConsultantBasedTicketDetails = async (req, res) => {
+  const { id } = req.params;
+
+  const baseurl = "http://localhost:5002";
+
+  const query = `
+    SELECT 
+      tr.ticket_id, 
+      tr.client_id, 
+      tr.subject, 
+      tr.ticket_body, 
+      tr.ticket_status_id, 
+      ts.status_name,
+      tr.timestamp,
+      tr.am_id,
+      tr.company_name,
+      CONCAT('${baseurl}', tr.screenshot) AS screenshot
+    FROM 
+      ticket_raising tr
+    INNER JOIN 
+      ticket_status ts
+    ON 
+      tr.ticket_status_id = ts.ticket_status_id
+    WHERE 
+      tr.consultant_emp_id = ?;
+  `;
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else {
+      res.json({ tickets: result });
+    }
+  });
+};
+

@@ -2,6 +2,9 @@
 import { Router } from "express";
 import {
   AccountMangerTicketRaising,
+  AmBasedEmployeeDetails,
+  AmBasedEmployeesCount,
+  AmBasedTicketDetails,
   ApproveConsultantSubmission,
   assignTicket,
   consultantUpdateTheTicketStatus,
@@ -24,7 +27,6 @@ router.post(
 );
 
 // Account Manager Routes
-router.get("/count/:am_id", getCompanyTicketCounts);
 router.get(
   "/getAMTicketDetail/:am_id/:company_name",
   getAccountManagerTicketDetails
@@ -44,5 +46,11 @@ router.post('/approve',ApproveConsultantSubmission)
 
 // Account manager ticket raising
 router.post('/amraiseticket/:am_id', upload.single('amscreenshot'), AccountMangerTicketRaising);
+
+// Account Manager Dashboard
+router.get("/count/:am_id", getCompanyTicketCounts);
+router.get('/empcount/:id',AmBasedEmployeesCount)
+router.get('/empdetail/:id',AmBasedEmployeeDetails)
+router.get('/amtickets/:id',AmBasedTicketDetails)
 
 export default router;

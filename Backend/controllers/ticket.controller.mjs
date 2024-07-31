@@ -297,32 +297,6 @@ export const createTicket = (req, res) => {
   });
 };
 
-export const getCompanyTicketCounts = (req, res) => {
-  const { am_id } = req.params;
-
-  const query = `
-        SELECT 
-            tr.company_name,
-            COUNT(tr.ticket_id) AS ticket_count
-        FROM
-            ticket_raising tr
-        WHERE
-            tr.am_id = ?
-        GROUP BY
-            tr.company_name
-        ORDER BY
-            MAX(tr.timestamp) DESC;
-    `;
-
-  db.query(query, [am_id], (err, results) => {
-    if (err) {
-      console.error("Error fetching ticket counts:", err);
-      return res.status(500).send("Failed to fetch ticket counts.");
-    }
-
-    res.status(200).json(results);
-  });
-};
 
 export const getAccountManagerTicketDetails = (req, res) => {
   const { am_id, company_name } = req.params;
@@ -1223,13 +1197,11 @@ export const AccountMangerTicketRaising = async (req, res) => {
                       }
                     );
 
-                    res
-                      .status(200)
-                      .json({
-                        success: true,
-                        message: "Ticket created successfully.",
-                        ticket_id,
-                      });
+                    res.status(200).json({
+                      success: true,
+                      message: "Ticket created successfully.",
+                      ticket_id,
+                    });
                   });
                 });
               });
@@ -1245,4 +1217,93 @@ export const AccountMangerTicketRaising = async (req, res) => {
       message: "An error occurred while processing your request.",
     });
   }
+};
+
+
+// This one accessing for AM
+export const getCompanyTicketCounts = (req, res) => {
+  const { am_id } = req.params;
+
+  const query = `
+        SELECT 
+    tr.company_name,
+    COUNT(tr.ticket_id) AS total_tickets,
+    SUM(CASE WHEN tr.ticket_status_id = 1 THEN 1 ELSE 0 END) AS status_1_tickets,
+    SUM(CASE WHEN tr.ticket_status_id = 2 THEN 1 ELSE 0 END) AS status_2_tickets,
+    SUM(CASE WHEN tr.ticket_status_id = 3 THEN 1 ELSE 0 END) AS status_3_tickets,
+    SUM(CASE WHEN tr.ticket_status_id = 4 THEN 1 ELSE 0 END) AS status_4_tickets,
+    SUM(CASE WHEN tr.ticket_status_id = 5 THEN 1 ELSE 0 END) AS status_5_tickets
+FROM
+    ticket_raising tr
+LEFT JOIN
+    ticket_status ts ON tr.ticket_status_id = ts.ticket_status_id
+WHERE
+    tr.am_id = ?
+GROUP BY
+    tr.company_name
+ORDER BY
+    MAX(tr.timestamp) DESC;
+    `;
+
+  db.query(query, [am_id], (err, results) => {
+    if (err) {
+      console.error("Error fetching ticket counts:", err);
+      return res.status(500).send("Failed to fetch ticket counts.");
+    }
+
+    res.status(200).json(results);
+  });
+};
+
+export const AmBasedEmployeesCount = async (req, res) => {
+  const { id } = req.params;
+
+  const query = `SELECT COUNT(*) AS employee_count FROM internal WHERE head_id = ?;`;
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      res.json({ error: err });
+    } else {
+      res.json({ count: result });
+    }
+  });
+};
+
+export const AmBasedEmployeeDetails = async (req, res) => {
+  const { id } = req.params;
+
+  const query = `SELECT name,email,mobile,emp_id FROM internal WHERE head_id = ?;`;
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      res.json({ error: err });
+    } else {
+      res.json({ result: result });
+    }
+  });
+};
+
+export const AmBasedTicketDetails = async (req, res) => {
+  const { id } = req.params;
+
+  const query = `SELECT 
+    tr.*, 
+    ts.status_name
+FROM 
+    ticket_raising tr
+INNER JOIN 
+    ticket_status ts
+ON 
+    tr.ticket_status_id = ts.ticket_status_id
+WHERE 
+    tr.am_id = ?;
+`;
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      res.json({ error: err });
+    } else {
+      res.json({ tickets: result });
+    }
+  });
 };

@@ -72,7 +72,7 @@ const Amsidebar = () => {
           >
             <Nav className="ml-auto">
               <Nav.Link as={Link} to={`/manager/${id}`} className="text-light">
-                Ticket Summary
+                Dashboard
               </Nav.Link>
               <Nav.Link
                 as={Link}
@@ -81,13 +81,14 @@ const Amsidebar = () => {
               >
                 Tickets
               </Nav.Link>
-              <NavLink
-                to={`/admin/clientdeatil`}
+              <Nav.Link
+                as={Link}
+                to={`/manager/ticketraise/${id}`}
                 className="text-light text-decoration-none mx-3 my-3"
               >
                 <FontAwesomeIcon icon={faAddressCard} className="me-2" />
                 Ticket Booking
-              </NavLink>
+              </Nav.Link>
               <Nav.Link
                 onClick={handleLogout}
                 as={Link}
@@ -117,7 +118,7 @@ const Amsidebar = () => {
               className="text-light text-decoration-none mx-3 my-2"
             >
               <FontAwesomeIcon icon={faRectangleList} className="me-2" />
-              TicketSummary
+              Dashboard
             </Nav.Link>
             <Nav.Link
               as={Link}

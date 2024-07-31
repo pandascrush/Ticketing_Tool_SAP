@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import {
   TextField,
@@ -21,6 +21,7 @@ function AmTicketBooking() {
   const decodedId = atob(id);
   const theme = useTheme();
 
+  const nav = useNavigate()
   const [consultants, setConsultants] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [services, setServices] = useState([]);
@@ -158,6 +159,7 @@ function AmTicketBooking() {
           alert("Error sending email to consultant.");
         } else if (response.data.message === "Ticket created successfully.") {
           alert("Ticket created successfully.");
+          nav(`/manager/tickets/${id}`)
           setFormData({
             subject: "",
             ticket_body: "",

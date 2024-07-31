@@ -17,7 +17,9 @@ import {
 } from "./Component/Admindashboard/Admindashboard";
 import {
   Amdashboard,
+  AmdEmployeeDetail,
   AmdTicketCount,
+  AmdTicketDetail,
   AmdTicketRaising,
   AmdTicketShow,
   AmdTicketTrack,
@@ -34,6 +36,7 @@ import {
   SeniorConsultantTickets,
   SeniorConsultantTicketsSubmissionChanges,
   SeniorConsultantTicketsSummary,
+  SeniorConsultantTicketTable,
 } from "./Component/Consultant Dashboard/SeniorConsultant/SeniorConsultantDashboard";
 
 function App() {
@@ -66,6 +69,8 @@ function App() {
             Component={AmdTicketTrack}
           />
           <Route path="/manager/ticketraise/:id" Component={AmdTicketRaising} />
+          <Route path="/manager/empdetail/:id" Component={AmdEmployeeDetail} />
+          <Route path="/manager/amtickets/:id" Component={AmdTicketDetail} />
 
           {/*Senior Consultant Routes*/}
           <Route
@@ -83,6 +88,10 @@ function App() {
           <Route
             path="/seniorcons/submissionChanges/:am_id/:ticket_id"
             Component={SeniorConsultantTicketsSubmissionChanges}
+          />
+          <Route
+            path="/seniorcons/tickettable/:id"
+            Component={SeniorConsultantTicketTable}
           />
 
           {/*Client Routes*/}

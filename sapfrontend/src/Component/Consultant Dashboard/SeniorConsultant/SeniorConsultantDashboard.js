@@ -4,6 +4,7 @@ import TicketSummary from "./TicketSummary";
 import TicketsList from "./TicketsList";
 import CompaniesList from "./CompaniesList";
 import ConsultantTicketSubmissionChanges from "./ConsultantTicketSubmissionChanges";
+import ConsultantTicketTable from "./ConsultantTicketTable";
 
 export function SeniorConsultantTicketsSummary() {
   return (
@@ -70,6 +71,24 @@ export function SeniorConsultantTicketsSubmissionChanges() {
           <div className="col-lg-1"></div>
           <div className="col-lg-8">
             <ConsultantTicketSubmissionChanges />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export function SeniorConsultantTicketTable() {
+  return (
+    <>
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-lg-2">
+            <SeniorConsultantSidebar />
+          </div>
+          <div className="col-lg-1"></div>
+          <div className="col-lg-8">
+            <ConsultantTicketTable />
           </div>
         </div>
       </div>

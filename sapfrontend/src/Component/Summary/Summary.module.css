@@ -1,0 +1,41 @@
+.mainContainer {
+  padding: 20px;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 15px;
+  text-align: center;
+}
+
+.cardTitle {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.cardCount {
+  font-size: 24px;
+  color: #333;
+}
+
+.chartWrapper {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.chartWrapper canvas {
+  max-height: 300px; /* Adjust height as needed */
+}
+
+.chartWrapper {
+  cursor: pointer; /* Changes cursor to pointer when hovering */
+  border: 1px solid #ddd; /* Optional: Adds a border around the chart */
+  border-radius: 8px; /* Optional: Rounds the corners of the border */
+  padding: 10px; /* Optional: Adds some padding inside the card */
+}
